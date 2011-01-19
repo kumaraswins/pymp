@@ -74,7 +74,7 @@ class Ui_AboutDialog(object):
     QtCore.QMetaObject.connectSlotsByName(Dialog)
 
   def retranslateUi(self, Dialog):
-    Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog",self.name, None, QtGui.QApplication.UnicodeUTF8))
+    Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog","About "+self.name, None, QtGui.QApplication.UnicodeUTF8))
     self.browserDonate.setText(
         "You like what you have in your hands? You use it on regular basis? "\
         "Support the development by making a donation."\

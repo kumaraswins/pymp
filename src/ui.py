@@ -43,7 +43,7 @@ class Ui_MainWindow(object):
         self.widget.setGeometry(MainWindow.geometry())
         self.widget.setObjectName(_fromUtf8("widget"))
         
-        #central layout
+        #central gridLayout
         self.horizontalLayout = QtGui.QVBoxLayout(self.widget)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.centralwidget.setLayout(self.horizontalLayout)
@@ -54,7 +54,7 @@ class Ui_MainWindow(object):
         self.inputPage = InputPage()
         self.pages.addWidget(self.inputPage)
         
-        #layout on the right
+        #gridLayout on the right
         self.verticalLayoutRight = QtGui.QHBoxLayout()
         self.verticalLayoutRight.setObjectName(_fromUtf8("verticalLayoutRight"))
         self.horizontalLayout.addLayout(self.verticalLayoutRight)
@@ -172,9 +172,94 @@ class InputPage(QtGui.QWidget):
     self.inputBrowser.setText(QtGui.QApplication.translate("MainWindow","# Insert the URLs to download here. Put each in a new line.\n", None, QtGui.QApplication.UnicodeUTF8))
     return
 
-class PreferencesDialog():
+class PreferencesDialog(QtGui.QDialog):
   def __init__(self):
-    pass
+    QtGui.QDialog.__init__(self)
+    self.setupUi(self)
+    return
+
+  def setupUi(self, Dialog):
+    #prepare the window
+    Dialog.setObjectName(_fromUtf8("Dialog"))
+    Dialog.resize(800, 480)
+    self.mainLayout=QtGui.QVBoxLayout(Dialog)
+    self.setLayout(self.mainLayout)
+    #the gridLayout
+    self.scrollArea=QtGui.QScrollArea()
+    self.gridWidget=QtGui.QWidget(self.scrollArea)
+    self.gridLayout=QtGui.QGridLayout(self.gridWidget)
+    self.gridWidget.setLayout(self.gridLayout)
+    
+    rowCount=0
+    columnCount=0
+    self.labelPath=QtGui.QLabel(self)
+    self.labelPath.setText("Working directory")
+    self.gridLayout.addWidget(self.labelPath,rowCount,columnCount)
+    columnCount+=1
+    self.buttonPathOfUser=QtGui.QPushButton(self)
+    self.buttonPathOfUser.setText("~")
+    self.gridLayout.addWidget(self.buttonPathOfUser,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.labelDownloads=QtGui.QLabel(self)
+    self.labelDownloads.setText("Number of simultaneous downloads (needs transport bandwidth)")
+    self.gridLayout.addWidget(self.labelDownloads,rowCount,columnCount)
+    columnCount+=1
+    self.spinDownloads=QtGui.QSpinBox(self)
+    self.spinDownloads.setMinimum(1)
+    self.spinDownloads.setMaximum(999)
+    self.gridLayout.addWidget(self.spinDownloads,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.labelConversions=QtGui.QLabel(self)
+    self.labelConversions.setText("Number of simultaneous conversions (needs computing power)")
+    self.gridLayout.addWidget(self.labelConversions,rowCount,columnCount)
+    columnCount+=1
+    self.spinConversions=QtGui.QSpinBox(self)
+    self.spinConversions.setMinimum(1)
+    self.spinConversions.setMaximum(999)
+    self.gridLayout.addWidget(self.spinConversions,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.labelDownloaderVersion=QtGui.QLabel(self)
+    self.labelDownloaderVersion.setText("Downloader Version (click to update)")
+    self.gridLayout.addWidget(self.labelDownloaderVersion,rowCount,columnCount)
+    columnCount+=1
+    self.buttonDownloaderVersion=QtGui.QPushButton(self)
+    self.buttonDownloaderVersion.setText("...")
+    self.gridLayout.addWidget(self.buttonDownloaderVersion,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.labelRetry=QtGui.QLabel(self)
+    self.labelRetry.setText("Number of download retries")
+    self.gridLayout.addWidget(self.labelRetry,rowCount,columnCount)
+    columnCount+=1
+    self.spinRetry=QtGui.QSpinBox(self)
+    self.spinRetry.setMinimum(0)
+    self.spinRetry.setMaximum(99)
+    self.gridLayout.addWidget(self.spinRetry,rowCount,columnCount)
+    
+    self.buttonLayout=QtGui.QHBoxLayout()
+    self.buttonLayout.addStretch()
+
+    self.buttonOk=QtGui.QPushButton(self)
+    self.buttonOk.setText("&Ok")
+    self.buttonLayout.addWidget(self.buttonOk)
+    self.buttonCancel=QtGui.QPushButton(self)
+    self.buttonCancel.setText("&Cancel")
+    self.buttonLayout.addWidget(self.buttonCancel)
+    
+    self.gridWidget.show()
+    self.scrollArea.setWidget(self.gridWidget)
+    self.mainLayout.addWidget(self.scrollArea)
+    self.mainLayout.addLayout(self.buttonLayout)
+    return
+    
+  def retranslate(self):
+    self.labelPath.setText("Working directory")
+    self.buttonPathOfUser.setText("~")
+    return
+    
 
   
 if __name__ == '__main__':

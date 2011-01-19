@@ -16,21 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
-"""
-TODO
-Prefrences Dialog:
-adjust path
-set number of simultanious downloads
-set number of simultanious conversions
-Downloader options:
-retries
-update
-Converter options:
-ffmpeg or mplayer+lame
-"""
 import os,re,logging,types
 from PyQt4 import QtGui, QtCore
-from ui import Ui_MainWindow
+from ui import *
 from aboutdialog import Ui_AboutDialog
 from maemoUtils import *
 from downloadWorker import DownloadWorker
@@ -141,9 +129,9 @@ class ProgressPage(QtGui.QWidget):
       columnCnt+=1
       rowCnt+=1
   
-class Dialog(QtGui.QDialog, Ui_AboutDialog):
+class AboutDialog(QtGui.QDialog, Ui_AboutDialog):
   def __init__(self,name,url,bugs):
-    self.name="About "+name
+    self.name=name
     self.url=url
     self.bugtracker=bugs
     QtGui.QDialog.__init__(self) 
@@ -183,6 +171,9 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.connect(self.actionExit,
                  QtCore.SIGNAL("triggered()"),
                  QtCore.SLOT("close()"))
+    self.connect(self.actionPreferences,
+                 QtCore.SIGNAL("triggered()"),
+                 self.onPreferences)
     #buttons
     self.connect(self.downloadButton,
                  QtCore.SIGNAL("clicked()"),
@@ -413,7 +404,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
       f.close()
   
   def onAbout(self):
-    dlg=Dialog(self.windowTitle(),
+    dlg=AboutDialog(self.windowTitle(),
                "https://sites.google.com/site/markusscharnowski/pc-software/pymp-youtube-downloader-and-mp3-converter",
                "https://code.google.com/p/pymp/issues/list")
     dlg.exec_()
@@ -424,6 +415,11 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
                                                caption="Set working directory")
     if dir != "":
       self.workingDirectory=dir
+    return
+  
+  def onPreferences(self):
+    dlg=PreferencesDialog()
+    dlg.exec_()
     return
 
 
