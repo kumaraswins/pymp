@@ -1,5 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+    This file is part of pymp.
+
+    pymp is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    pymp is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with pymp.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
 from PyQt4 import QtCore, QtGui
 from maemoUtils import *
@@ -109,7 +125,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow","YT3", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow","pymp", None, QtGui.QApplication.UnicodeUTF8))
         self.checkBoxFlash.setText(QtGui.QApplication.translate("MainWindow", "Flash &video", None, QtGui.QApplication.UnicodeUTF8))
         self.checkBoxMp3.setText(QtGui.QApplication.translate("MainWindow", "&Mp3", None, QtGui.QApplication.UnicodeUTF8))
         self.downloadButton.setText(QtGui.QApplication.translate("MainWindow", "&Download", None, QtGui.QApplication.UnicodeUTF8))
