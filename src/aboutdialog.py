@@ -101,7 +101,23 @@ class Ui_AboutDialog(object):
     self.browserGeneral.setText(
         "<p>" + self.name + "</p>"\
         "<p>Concept and programming: <a href=\"mailto:markus.scharnowski@gmail.com?subject=Thank you for " + self.name +
-        "&body=Hello Markus,\">Markus Scharnowski</a></p>"
+        "&body=Hello Markus,\">Markus Scharnowski</a></p>"\
+        """
+<p><h1>License</h1></p>
+<p>
+""" + self.name + """ is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or any later version.
+</p><p>
+""" + self.name + """ is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+</p><p>
+You should have received a copy of the GNU General Public License
+along with """ + self.name + """.  If not, see <a href="http://www.gnu.org/licenses/">gnu.org</a>.
+</p>
+        """
         )
 
 if __name__ == '__main__':
