@@ -23,7 +23,7 @@ from aboutdialog import Ui_AboutDialog
 from maemoUtils import *
 from downloadWorker import DownloadWorker
 from convertWorker import ConvertWorker
-from preferencesDialog import PreferencesDialog
+from preferencesDialog import Ui_PreferencesDialog
 
 class ProgressPage(QtGui.QWidget):
   def __init__(self,information):
@@ -137,6 +137,16 @@ class AboutDialog(QtGui.QDialog, Ui_AboutDialog):
     self.bugtracker=bugs
     QtGui.QDialog.__init__(self) 
     self.setupUi(self)
+    
+class PreferencesDialog(Ui_PreferencesDialog):
+  def __init__(self):
+    Ui_PreferencesDialog.__init__(self)
+    
+    self.connect(self.buttonCancel,
+                 QtCore.SIGNAL("clicked()"),
+                 QtCore.SLOT("close()"))
+    
+    return
 
 class Ui(QtGui.QMainWindow, Ui_MainWindow):
   def __init__(self): 

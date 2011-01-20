@@ -25,17 +25,17 @@ try:
 except AttributeError:
     _fromUtf8 = lambda s: s
 
-class PreferencesDialog(QtGui.QDialog):
+class Ui_PreferencesDialog(QtGui.QDialog):
   def __init__(self):
     QtGui.QDialog.__init__(self)
-    self.setupUi(self)
+    self.setupUi()
     return
 
-  def setupUi(self, Dialog):
+  def setupUi(self):
     #prepare the window
-    Dialog.setObjectName(_fromUtf8("Dialog"))
-    Dialog.resize(800, 480)
-    self.mainLayout=QtGui.QVBoxLayout(Dialog)
+    self.setObjectName(_fromUtf8("PreferencesDialog"))
+    self.resize(800, 480)
+    self.mainLayout=QtGui.QVBoxLayout()
     self.setLayout(self.mainLayout)
     #the gridLayout
     self.scrollArea=QtGui.QScrollArea()
@@ -124,6 +124,6 @@ if __name__ == '__main__':
   import sys
 
   app = QtGui.QApplication(sys.argv) 
-  dialog = PreferencesDialog()
+  dialog = Ui_PreferencesDialog()
   dialog.show()
   sys.exit(app.exec_())
