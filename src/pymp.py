@@ -23,6 +23,7 @@ from aboutdialog import Ui_AboutDialog
 from maemoUtils import *
 from downloadWorker import DownloadWorker
 from convertWorker import ConvertWorker
+from preferencesDialog import PreferencesDialog
 
 class ProgressPage(QtGui.QWidget):
   def __init__(self,information):

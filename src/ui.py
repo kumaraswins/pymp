@@ -25,9 +25,6 @@ try:
 except AttributeError:
     _fromUtf8 = lambda s: s
 
-def translate(self,string):
-  return QtGui.QApplication.translate("MainWindow", string, None, QtGui.QApplication.UnicodeUTF8)
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         #prepare the window
@@ -147,6 +144,10 @@ class Ui_MainWindow(object):
 class InputPage(QtGui.QWidget):
   def __init__(self):
     QtGui.QWidget.__init__(self)
+    self.setupUi()  
+    return
+  
+  def setupUi(self):
     self.mainLayout = QtGui.QHBoxLayout(self)
     self.mainLayout.setObjectName(_fromUtf8("mainLayout"))
     self.setLayout(self.mainLayout)
@@ -172,96 +173,6 @@ class InputPage(QtGui.QWidget):
     self.inputBrowser.setText(QtGui.QApplication.translate("MainWindow","# Insert the URLs to download here. Put each in a new line.\n", None, QtGui.QApplication.UnicodeUTF8))
     return
 
-class PreferencesDialog(QtGui.QDialog):
-  def __init__(self):
-    QtGui.QDialog.__init__(self)
-    self.setupUi(self)
-    return
-
-  def setupUi(self, Dialog):
-    #prepare the window
-    Dialog.setObjectName(_fromUtf8("Dialog"))
-    Dialog.resize(800, 480)
-    self.mainLayout=QtGui.QVBoxLayout(Dialog)
-    self.setLayout(self.mainLayout)
-    #the gridLayout
-    self.scrollArea=QtGui.QScrollArea()
-    self.gridWidget=QtGui.QWidget(self.scrollArea)
-    self.gridLayout=QtGui.QGridLayout(self.gridWidget)
-    self.gridWidget.setLayout(self.gridLayout)
-    
-    rowCount=0
-    columnCount=0
-    self.labelPath=QtGui.QLabel(self)
-    self.labelPath.setText("Working directory")
-    self.gridLayout.addWidget(self.labelPath,rowCount,columnCount)
-    columnCount+=1
-    self.buttonPathOfUser=QtGui.QPushButton(self)
-    self.buttonPathOfUser.setText("~")
-    self.gridLayout.addWidget(self.buttonPathOfUser,rowCount,columnCount)
-    rowCount+=1
-    columnCount=0
-    self.labelDownloads=QtGui.QLabel(self)
-    self.labelDownloads.setText("Number of simultaneous downloads (needs transport bandwidth)")
-    self.gridLayout.addWidget(self.labelDownloads,rowCount,columnCount)
-    columnCount+=1
-    self.spinDownloads=QtGui.QSpinBox(self)
-    self.spinDownloads.setMinimum(1)
-    self.spinDownloads.setMaximum(999)
-    self.gridLayout.addWidget(self.spinDownloads,rowCount,columnCount)
-    rowCount+=1
-    columnCount=0
-    self.labelConversions=QtGui.QLabel(self)
-    self.labelConversions.setText("Number of simultaneous conversions (needs computing power)")
-    self.gridLayout.addWidget(self.labelConversions,rowCount,columnCount)
-    columnCount+=1
-    self.spinConversions=QtGui.QSpinBox(self)
-    self.spinConversions.setMinimum(1)
-    self.spinConversions.setMaximum(999)
-    self.gridLayout.addWidget(self.spinConversions,rowCount,columnCount)
-    rowCount+=1
-    columnCount=0
-    self.labelDownloaderVersion=QtGui.QLabel(self)
-    self.labelDownloaderVersion.setText("Downloader Version (click to update)")
-    self.gridLayout.addWidget(self.labelDownloaderVersion,rowCount,columnCount)
-    columnCount+=1
-    self.buttonDownloaderVersion=QtGui.QPushButton(self)
-    self.buttonDownloaderVersion.setText("...")
-    self.gridLayout.addWidget(self.buttonDownloaderVersion,rowCount,columnCount)
-    rowCount+=1
-    columnCount=0
-    self.labelRetry=QtGui.QLabel(self)
-    self.labelRetry.setText("Number of download retries")
-    self.gridLayout.addWidget(self.labelRetry,rowCount,columnCount)
-    columnCount+=1
-    self.spinRetry=QtGui.QSpinBox(self)
-    self.spinRetry.setMinimum(0)
-    self.spinRetry.setMaximum(99)
-    self.gridLayout.addWidget(self.spinRetry,rowCount,columnCount)
-    
-    self.buttonLayout=QtGui.QHBoxLayout()
-    self.buttonLayout.addStretch()
-
-    self.buttonOk=QtGui.QPushButton(self)
-    self.buttonOk.setText("&Ok")
-    self.buttonLayout.addWidget(self.buttonOk)
-    self.buttonCancel=QtGui.QPushButton(self)
-    self.buttonCancel.setText("&Cancel")
-    self.buttonLayout.addWidget(self.buttonCancel)
-    
-    self.gridWidget.show()
-    self.scrollArea.setWidget(self.gridWidget)
-    self.mainLayout.addWidget(self.scrollArea)
-    self.mainLayout.addLayout(self.buttonLayout)
-    return
-    
-  def retranslate(self):
-    self.labelPath.setText("Working directory")
-    self.buttonPathOfUser.setText("~")
-    return
-    
-
-  
 if __name__ == '__main__':
     import sys
     class MyWindow(QtGui.QMainWindow, Ui_MainWindow): 
