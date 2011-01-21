@@ -18,6 +18,7 @@
 """
 
 from PyQt4 import QtCore, QtGui
+from qtUtils import *
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -75,14 +76,14 @@ class Ui_AboutDialog(object):
 
   def retranslateUi(self, Dialog):
     Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog","About "+self.name, None, QtGui.QApplication.UnicodeUTF8))
-    self.browserDonate.setText(
+    self.browserDonate.setText(translate(
         "You like what you have in your hands? You use it on regular basis? "\
         "Support the development by making a donation."\
         "<p>Donate through "\
         "<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TPX9PV29D4L9Y\">paypal</a></p>"\
         "<p>Visit the projects <a href=\"https://sites.google.com/site/markusscharnowski/donate\">donation website</a></p>"
-        )
-    self.browserWebsite.setText(
+        ))
+    self.browserWebsite.setText(translate(
         "<p>Visit</p>"\
         "<p>"\
         "<a href=\""+ self.url + "\">" + self.url + "</a>"\
@@ -90,15 +91,15 @@ class Ui_AboutDialog(object):
         "<p>"\
         "<a href=\"http://sites.google.com/site/markusscharnowski\">http://sites.google.com/site/markusscharnowski</a>"\
         "</p>"
-        )
-    self.browserFeedback.setText(
+        ))
+    self.browserFeedback.setText(translate(
         "<p>Do you have ideas for improving the program? You want a specific functionality? "
         "You have found a bug?</p>"
         "<p><a href=\""+self.bugtracker+"\">Bugtracker</a></p>"
         "<p>Email <a href=\"mailto:markus.scharnowski@gmail.com?subject=SW Feedback " + self.windowTitle() +
         " &body=Hello Markus,\">Feedback</a></p>"
-        )
-    self.browserGeneral.setText(
+        ))
+    self.browserGeneral.setText(translate(
         "<p>" + self.name + "</p>"\
         "<p>Concept and programming: <a href=\"mailto:markus.scharnowski@gmail.com?subject=Thank you for " + self.name +
         "&body=Hello Markus,\">Markus Scharnowski</a></p>"\
@@ -118,7 +119,7 @@ You should have received a copy of the GNU General Public License
 along with """ + self.name + """.  If not, see <a href="http://www.gnu.org/licenses/">gnu.org</a>.
 </p>
         """
-        )
+        ))
 
 if __name__ == '__main__':
   import sys

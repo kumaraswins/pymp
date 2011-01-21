@@ -141,12 +141,37 @@ class AboutDialog(QtGui.QDialog, Ui_AboutDialog):
 class PreferencesDialog(Ui_PreferencesDialog):
   def __init__(self):
     Ui_PreferencesDialog.__init__(self)
-    
+    self.readSettings()
     self.connect(self.buttonCancel,
                  QtCore.SIGNAL("clicked()"),
                  QtCore.SLOT("close()"))
-    
+    self.connect(self.buttonOk,
+                 QtCore.SIGNAL("clicked()"),
+                 self.onOk)
+    self.connect(self.buttonPathOfUser,
+                 QtCore.SIGNAL("clicked()"),
+                 self.changePath)
+    self.connect(self.buttonDownloaderVersion,
+                 QtCore.SIGNAL("clicked()"),
+                 self.updateDownloader)
     return
+
+  def readSettings(self):
+    pass
+
+  def saveSettings(self):
+    pass
+
+  def onOk(self):
+    self.saveSettings()
+    self.close()
+    return
+
+  def changePath(self):
+    pass
+
+  def updateDownloader(self):
+    pass
 
 class Ui(QtGui.QMainWindow, Ui_MainWindow):
   def __init__(self): 
