@@ -44,9 +44,17 @@ class Ui_AboutDialog(object):
     self.layout.addWidget(self.tabs)
     #some browsers
     self.browserDonate=QtGui.QTextBrowser(self.tabs)
+    self.browserDonate.setOpenExternalLinks(True)
+    self.browserDonate.setOpenLinks(False)
     self.browserGeneral=QtGui.QTextBrowser(self.tabs)
+    self.browserGeneral.setOpenExternalLinks(True)
+    self.browserGeneral.setOpenLinks(False)
     self.browserWebsite=QtGui.QTextBrowser(self.tabs)
+    self.browserWebsite.setOpenExternalLinks(True)
+    self.browserWebsite.setOpenLinks(False)
     self.browserFeedback=QtGui.QTextBrowser(self.tabs)
+    self.browserFeedback.setOpenExternalLinks(True)
+    self.browserFeedback.setOpenLinks(False)
     #insert the tabs
     tabCnt=1
     self.tabs.insertTab(tabCnt, self.browserGeneral,
@@ -71,8 +79,24 @@ class Ui_AboutDialog(object):
 
     
     #uff nearly done
+    self.connect(self.browserGeneral,
+                 QtCore.SIGNAL("anchorClicked(QUrl)"),
+                 self.redirect)
+    self.connect(self.browserWebsite,
+                 QtCore.SIGNAL("anchorClicked(QUrl)"),
+                 self.redirect)
+    self.connect(self.browserDonate,
+                 QtCore.SIGNAL("anchorClicked(QUrl)"),
+                 self.redirect)
+    self.connect(self.browserFeedback,
+                 QtCore.SIGNAL("anchorClicked(QUrl)"),
+                 self.redirect)
     self.retranslateUi(Dialog)
     QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+  def redirect(self,url):
+    QtGui.QDesktopServices.openUrl(url)
+    return
 
   def retranslateUi(self, Dialog):
     Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog","About "+self.name, None, QtGui.QApplication.UnicodeUTF8))
@@ -81,7 +105,7 @@ class Ui_AboutDialog(object):
         "Support the development by making a donation."\
         "<p>Donate through "\
         "<a href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TPX9PV29D4L9Y\">paypal</a></p>"\
-        "<p>Visit the projects <a href=\"https://sites.google.com/site/markusscharnowski/donate\">donation website</a></p>"
+        "<p>Visit the projects <a href=\"http://sites.google.com/site/markusscharnowski/donate\">donation website</a></p>"
         ))
     self.browserWebsite.setText(translate(
         "<p>Visit</p>"\
@@ -101,6 +125,9 @@ class Ui_AboutDialog(object):
         ))
     self.browserGeneral.setText(translate(
         "<p>" + self.name + "</p>"\
+#        "<p>Test <a href=\"file:////home/markus/workspace/eclipse/python/pymp/test/Aladdin_intro_German-bJAyLYR71NM.flv\">test.flv</a></p>"\
+#        "<p>Test <a href=\"file:////home/markus/workspace/eclipse/python/pymp/test/Aladdin_intro_German-bJAyLYR71NM.flv.mp3\">test.flv.mp3</a></p>"\
+#        "<p>Test <a href=\"x\">test</a></p>"\
         "<p>Concept and programming: <a href=\"mailto:markus.scharnowski@gmail.com?subject=Thank you for " + self.name +
         "&body=Hello Markus,\">Markus Scharnowski</a></p>"\
         """
@@ -122,7 +149,7 @@ along with """ + self.name + """.  If not, see <a href="http://www.gnu.org/licen
         ))
 
 if __name__ == '__main__':
-  import sys
+  import sys,os
   class MyWindow(QtGui.QDialog, Ui_AboutDialog): 
     def __init__(self,name,url,bugs):
       self.name=name
@@ -132,6 +159,6 @@ if __name__ == '__main__':
       self.setupUi(self)
 
   app = QtGui.QApplication(sys.argv) 
-  dialog = MyWindow("123","http://sites.google.com/site/markusscharnowski/123","http://code.google.com/p/push-it/issues/list") 
+  dialog = MyWindow(os.path.basename(__file__),"http://sites.google.com/site/markusscharnowski/123","http://code.google.com/p/push-it/issues/list") 
   dialog.show() 
   sys.exit(app.exec_())

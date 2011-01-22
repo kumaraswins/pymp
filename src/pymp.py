@@ -79,9 +79,14 @@ class ProgressPage(QtGui.QWidget):
                                 rowCnt+headerCnt,
                                 columnCnt)
       columnCnt+=1
-      textEdit = QtGui.QTextEdit(self)
-      textEdit.setText(val["file"])
+      textEdit = QtGui.QTextBrowser(self)
+      textEdit.setOpenExternalLinks(True)
+      textEdit.setOpenLinks(False)
       textEdit.setReadOnly(True)
+      self.connect(textEdit,
+                   QtCore.SIGNAL("anchorClicked(QUrl)"),
+                   self.redirect)
+      textEdit.setText(self.htmlLink(val["file"]))
       self.widgets[rowCnt].append(textEdit)
       self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt])-1],
                                 rowCnt+headerCnt,
@@ -106,7 +111,17 @@ class ProgressPage(QtGui.QWidget):
     self.groupBox.setTitle(QtGui.QApplication.translate("MainWindow","&Progress information", None, QtGui.QApplication.UnicodeUTF8))
     return
   
-  def updateContent(self,information):
+  def redirect(self,url):
+    return QtGui.QDesktopServices.openUrl(url)
+  
+  def htmlLink(self,link):
+    if os.path.isfile(link):
+      toReturn="<a href=\""+link+"\">"+link+"</a>"
+    else:
+      toReturn=link
+    return toReturn
+  
+  def updateContent(self,information,force=False):
     rowCnt=0
     columnCnt=0
     for key,val in information.iteritems():
@@ -117,9 +132,10 @@ class ProgressPage(QtGui.QWidget):
       if val["state"] != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(val["state"])
       columnCnt+=1
-      if  val["file"] != None and \
-          val["file"] != self.widgets[rowCnt][columnCnt].toPlainText():
-        self.widgets[rowCnt][columnCnt].setText(val["file"])
+      if  True == force or \
+          (val["file"] != None and \
+          val["file"] != self.widgets[rowCnt][columnCnt].toPlainText()):
+        self.widgets[rowCnt][columnCnt].setText(self.htmlLink(val["file"]))
       columnCnt+=1
       progress = val["totalProgress"]
       if type(val["totalProgress"]) is str:
@@ -302,6 +318,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           self.results[url]["state"] = "done"
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "100%"
+        self.progressPage.updateContent(self.results,True)
       else:
         if  self.results[url]["state"] != "Downloading" \
             and not pQueued.search(state["state"]):
@@ -329,6 +346,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
               value["state"] = state["state"]
               converterDoneCnt+=1
               total=100
+              self.progressPage.updateContent(self.results,True)
             else:
               total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/2+50
             value["totalProgress"] = "%.1lf%%" %(total)
