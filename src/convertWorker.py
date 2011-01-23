@@ -37,32 +37,33 @@ class ConvertWorker(threading.Thread):
   result={}
   resultLock=threading.Lock()
   
-  def __init__(self):
+  def __init__(self,settings):
     threading.Thread.__init__(self)
+    self.settings=settings
     self.programList={
                       "ffmpeg":   {
                                    "exec":self.executeFfmpeg,
                                    "state":self.getStateFfmpeg,
-                                   "path":"ffmpeg",
+                                   "path":settings["ffmpeg.path"],
                                   },
                       "lame":     {"exec":self.executeLame,
                                    "state":self.getStateLame,
-                                   "path":"lame",
+                                   "path":settings["lame.path"],
                                   },
                       "mplayer":  {
                                    "exec":self.executeMplayer,
                                    "state":self.getStateMplayer,
-                                   "path":"mplayer",
+                                   "path":settings["mplayer.path"],
                                    },
                       "normalize":{
                                    "exec":self.executeNormalize,
                                    "state":self.getStateNormalize,
-                                   "path":"normalize",
+                                   "path":settings["normalize.path"],
                                    },
                       "sox":      {
                                    "exec":self.executeSox,
                                    "state":self.getStateSox,
-                                   "path":"sox",
+                                   "path":settings["sox.path"],
                                    },
                       }
     self.readSettings()
@@ -398,8 +399,14 @@ if __name__== '__main__':
                       level=logging.DEBUG,
                       format = "%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt = "%F %H:%M:%S")
-  
-  threads = [ConvertWorker() for i in range(2)]
+  settings={
+           "mplayer.path":"mplayer",
+           "ffmpeg.path":"ffmpeg",
+           "sox.path":"sox",
+           "lame.path":"lame",
+           "normalize.path":"normalize",
+            }
+  threads = [ConvertWorker(settings) for i in range(2)]
   for thread in threads:
     thread.setDaemon(True)
     thread.start()

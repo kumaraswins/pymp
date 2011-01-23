@@ -39,14 +39,23 @@ class DownloadWorker(threading.Thread):
     return rc
   addResult=staticmethod(addResult)
   
-  def __init__(self):
+  def __init__(self,settings):
     threading.Thread.__init__(self)
-    self.readSettings()
     self.p = None
+    self.options=["-t"]
+    self.readSettings(settings)
+    self.settings=settings
     return
   
-  def readSettings(self):
-    pass
+  def readSettings(self,settings=None):
+    if None != settings:
+      keyword="download.numberOfRetries"
+      if keyword in settings.keys():
+        self.options.append("-R")
+        self.options.append(str(settings[keyword]))
+    for i in self.options:
+      logging.debug(type(i).__name__+" "+i)
+    return
   
   def run(self):
     while True:
@@ -56,7 +65,11 @@ class DownloadWorker(threading.Thread):
       self.p = None
       self.tmpFile = tempfile.TemporaryFile()
       self.errFile = tempfile.TemporaryFile()
-      self.p=subprocess.Popen(["youtubeDownload.py","-t",self.url],
+      call=[]
+      call.append(self.settings["download.downloader.path"])
+      call+=self.options
+      call.append(self.url)
+      self.p=subprocess.Popen(call,
                           stdout=self.tmpFile,
                           stderr=self.errFile)
       while None != self.p and None == self.p.poll():
@@ -123,17 +136,19 @@ if __name__== '__main__':
                   level=logging.DEBUG,
                   format = "%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                   datefmt = "%F %H:%M:%S")
-  
-  threads = [DownloadWorker() for i in range(2)]
+  settings={
+            "download.downloader.path":"youtubeDownload.py"
+            }
+  threads = [DownloadWorker(settings) for i in range(2)]
   for thread in threads:
     thread.setDaemon(True)
     thread.start()
   
   DownloadWorker.queue.put("http://www.youtube.com/watch?v=O5sd_CuZxNc")
-#  DownloadWorker.queue.put("http://www.youtube.com/watch?v=O5sd_CuZxNcaa") #not working
-#  DownloadWorker.queue.put("http://www.youtube.com/watch?v=jrZHxIA0eVU&feature=related")
-#  DownloadWorker.queue.put("http://www.youtube.com/watch?v=bJAyLYR71NM&NR=1")
-#  DownloadWorker.queue.put("http://www.youtube.com/watch?v=lfEDO1uZxVA")
+  DownloadWorker.queue.put("http://www.youtube.com/watch?v=O5sd_CuZxNcaa") #not working
+  DownloadWorker.queue.put("http://www.youtube.com/watch?v=jrZHxIA0eVU&feature=related")
+  DownloadWorker.queue.put("http://www.youtube.com/watch?v=bJAyLYR71NM&NR=1")
+  DownloadWorker.queue.put("http://www.youtube.com/watch?v=lfEDO1uZxVA")
   time.sleep(1)
   cnt=1
   while cnt > 0:

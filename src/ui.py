@@ -77,8 +77,6 @@ class Ui_MainWindow(object):
         #menu actions
         self.actionAbout = QtGui.QAction(MainWindow)
         self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
-        self.action_Set_working_directory = QtGui.QAction(MainWindow)
-        self.action_Set_working_directory.setObjectName(_fromUtf8("action_Set_working_directory"))
         self.actionLoadList = QtGui.QAction(MainWindow)
         self.actionLoadList.setObjectName(_fromUtf8("actionLoadList"))
         self.actionSaveList = QtGui.QAction(MainWindow)
@@ -104,7 +102,6 @@ class Ui_MainWindow(object):
         self.menuHelp.addAction(self.actionAbout)
         self.menuFile.addAction(self.actionLoadList)
         self.menuFile.addAction(self.actionSaveList)
-        self.menuPreferences.addAction(self.action_Set_working_directory)
         self.menuPreferences.addAction(self.actionPreferences)
         if not isMaemo5():
           self.menuFile.addAction(self.actionExit)
@@ -131,7 +128,6 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuPreferences.setTitle(QtGui.QApplication.translate("MainWindow", "&Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_Set_working_directory.setText(QtGui.QApplication.translate("MainWindow", "Set working &directory", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoadList.setText(QtGui.QApplication.translate("MainWindow", "&Load download list", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSaveList.setText(QtGui.QApplication.translate("MainWindow", "&Save download list", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "&Exit", None, QtGui.QApplication.UnicodeUTF8))

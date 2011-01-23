@@ -16,14 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os,re,logging,types
+import os,re,logging,types,tempfile,subprocess
 from PyQt4 import QtGui, QtCore
+from qtUtils import *
 from ui import *
 from aboutdialog import Ui_AboutDialog
 from maemoUtils import *
 from downloadWorker import DownloadWorker
 from convertWorker import ConvertWorker
 from preferencesDialog import Ui_PreferencesDialog
+from settings import Settings
 
 class ProgressPage(QtGui.QWidget):
   def __init__(self,information):
@@ -115,7 +117,7 @@ class ProgressPage(QtGui.QWidget):
     return QtGui.QDesktopServices.openUrl(url)
   
   def htmlLink(self,link):
-    if os.path.isfile(link):
+    if None != link and os.path.isfile(link):
       toReturn="<a href=\""+link+"\">"+link+"</a>"
     else:
       toReturn=link
@@ -155,8 +157,10 @@ class AboutDialog(QtGui.QDialog, Ui_AboutDialog):
     self.setupUi(self)
     
 class PreferencesDialog(Ui_PreferencesDialog):
-  def __init__(self):
+  def __init__(self,settings):
     Ui_PreferencesDialog.__init__(self)
+    self.setWindowTitle(translate("Preferences"))
+    self.settings=settings
     self.readSettings()
     self.connect(self.buttonCancel,
                  QtCore.SIGNAL("clicked()"),
@@ -170,36 +174,72 @@ class PreferencesDialog(Ui_PreferencesDialog):
     self.connect(self.buttonDownloaderVersion,
                  QtCore.SIGNAL("clicked()"),
                  self.updateDownloader)
+    self.updateContent()
+    return
+  
+  def updateContent(self):
+    self.updateDirectoryButton()
+    self.updateVersionButton()
+    self.spinDownloads.setValue(int(self.settings["numberOfSimultaniousDownloads"]))
+    self.spinConversions.setValue(int(self.settings["numberOfSimultaniousConversions"]))
+    self.spinRetry.setValue(int(self.settings["download.numberOfRetries"]))
     return
 
   def readSettings(self):
-    pass
+    self.settings.readFromFile()
 
   def saveSettings(self):
-    pass
+    self.settings.writeToFile()
 
   def onOk(self):
+    self.settings["download.numberOfRetries"]=str(self.spinRetry.value())
+    self.settings["numberOfSimultaniousConversions"]=str(self.spinConversions.value())
+    self.settings["numberOfSimultaniousDownloads"]=str(self.spinDownloads.value())
     self.saveSettings()
     self.close()
     return
 
   def changePath(self):
-    pass
+    dir=QtGui.QFileDialog.getExistingDirectory(parent=self, 
+                                               caption="Set working directory")
+    if dir != "":
+      self.settings["workingDirectory"]=str(dir)
+    self.updateDirectoryButton()
+    return
+  
+  def updateDirectoryButton(self):
+    self.buttonPathOfUser.setText(os.path.basename(self.settings["workingDirectory"]))
+    return
 
   def updateDownloader(self):
-    pass
+    self.tmpFile = tempfile.TemporaryFile()
+    self.errFile = tempfile.TemporaryFile()
+    sts=subprocess.call([self.settings["download.downloader.path"],"-U"],
+                        stderr=self.errFile,
+                        stdout=self.tmpFile)
+    self.updateVersionButton()
+    
+  def updateVersionButton(self):
+    self.tmpFile = tempfile.TemporaryFile()
+    self.errFile = tempfile.TemporaryFile()
+    sts=subprocess.call([self.settings["download.downloader.path"],"-v"],
+                        stderr=self.errFile,
+                        stdout=self.tmpFile)
+    self.tmpFile.seek(0)
+    version=self.tmpFile.read().rstrip()
+    logging.debug(version)
+    self.buttonDownloaderVersion.setText(version)
 
 class Ui(QtGui.QMainWindow, Ui_MainWindow):
-  def __init__(self): 
+  def __init__(self):
     QtGui.QMainWindow.__init__(self)
     #directory setup
     if isMaemo5() and os.path.isdir(os.path.expanduser("~/MyDocs")):
-      self.workingDirectory=os.path.expanduser("~/MyDocs")
+      self.settingsPath=os.path.expanduser("~/MyDocs")
     else:
-      self.workingDirectory=os.path.expanduser("~")
-    os.chdir(self.workingDirectory)
-    self.workingDirectory=QtGui.QDirModel
-    
+      self.settingsPath=os.path.expanduser("~")
+    self.settings=Settings(self.settingsPath+"/.pymprc")
+    self.readSettings()
     self.timer = QtCore.QTimer()
     self.setupUi(self)
     
@@ -211,9 +251,6 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.connect(self.actionAbout, 
                  QtCore.SIGNAL("triggered()"),
                  self.onAbout)
-    self.connect(self.action_Set_working_directory,
-                 QtCore.SIGNAL("triggered()"),
-                 self.onSetDirectory)
     self.connect(self.actionLoadList,
                  QtCore.SIGNAL("triggered()"),
                  self.onLoadList)
@@ -234,15 +271,18 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
                  QtCore.SIGNAL("clicked()"),
                  self.onCancel)
     self.pNumbers=re.compile(r"([0-9]*)")
-    self.readSettings()
     self.progressPage = None
     self.downloaders = None
     self.converters = None
     return
   
+  def __del__(self):
+    self.settings.writeToFile()
+    return
+  
   def readSettings(self):
-    self.numberOfDownloader=3
-    self.numberOfConverter=2
+    self.settings.readFromFile()
+    os.chdir(self.settings["workingDirectory"])
     return
   
   def performActions(self):
@@ -259,7 +299,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     """
     #init downloaders
     if None == self.downloaders:
-      self.downloaders= [DownloadWorker() for i in range(self.numberOfDownloader)]
+      self.downloaders= [DownloadWorker(self.settings) for i in range(int(self.settings["numberOfSimultaniousDownloads"]))]
       for i in self.downloaders:
         i.setDaemon(True)
         i.start()
@@ -269,7 +309,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
       DownloadWorker.resultLock.release()
     #init converters
     if None == self.converters:
-      self.converters = [ConvertWorker() for i in range(self.numberOfConverter)]
+      self.converters = [ConvertWorker(self.settings) for i in range(int(self.settings["numberOfSimultaniousConversions"]))]
       for i in self.converters:
         i.setDaemon(True)
         i.start()
@@ -464,16 +504,10 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     dlg.exec_()
     return
     
-  def onSetDirectory(self):
-    dir=QtGui.QFileDialog.getExistingDirectory(parent=self, 
-                                               caption="Set working directory")
-    if dir != "":
-      self.workingDirectory=dir
-    return
-  
   def onPreferences(self):
-    dlg=PreferencesDialog()
+    dlg=PreferencesDialog(self.settings)
     dlg.exec_()
+    self.settings.readFromFile()
     return
 
 
