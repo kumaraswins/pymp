@@ -133,7 +133,7 @@ class ProgressPage(QtGui.QWidget):
       for i in words:
         toReturn+=self.singleLink(i, force)
         toReturn+=" "
-      toReturn.rstrip()
+      toReturn=toReturn.rstrip()
     finally:
       return toReturn
   
@@ -163,7 +163,7 @@ class ProgressPage(QtGui.QWidget):
       else:
         strn=val["file"]
       if  (val["file"] != None and \
-          self.htmlLink(strn) != self.widgets[rowCnt][columnCnt].toPlainText()):
+          strn != self.widgets[rowCnt][columnCnt].toPlainText()):
         self.widgets[rowCnt][columnCnt].setText(self.htmlLink(strn))
       columnCnt+=1
       progress = val["totalProgress"]
