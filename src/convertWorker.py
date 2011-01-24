@@ -150,16 +150,14 @@ class ConvertWorker(threading.Thread):
       ConvertWorker.resultLock.acquire()
       if "done" == state:
         ConvertWorker.queue.task_done()
-        ConvertWorker.result[self.convertingFile] = {
-                                                     "state" : state, 
+        ConvertWorker.result[self.convertingFile] = {"state" : state, 
                                                      "step": self.currentRunning,
                                                      "stepState": state,
                                                      "workingFile": self.workingFile.last()
                                                      }
       else:
         total=(int(self.totalProgress) + float(state.strip("%"))/100)/float(self.totalSteps)*100
-        ConvertWorker.result[self.convertingFile] = {
-                                                     "state": str(total)+"%",
+        ConvertWorker.result[self.convertingFile] = {"state": str(total)+"%",
                                                      "step": self.currentRunning,
                                                      "stepState": state,
                                                      "workingFile": self.workingFile.last()

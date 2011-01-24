@@ -147,7 +147,7 @@ class ProgressPage(QtGui.QWidget):
       toReturn=link
     return toReturn
   
-  def updateContent(self,information,force=False):
+  def updateContent(self,information):
     rowCnt=0
     columnCnt=0
     for key,val in information.iteritems():
@@ -158,10 +158,13 @@ class ProgressPage(QtGui.QWidget):
       if val["state"] != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(val["state"])
       columnCnt+=1
-      if  True == force or \
-          (val["file"] != None and \
-          val["file"] != self.widgets[rowCnt][columnCnt].toPlainText()):
-        self.widgets[rowCnt][columnCnt].setText(self.htmlLink(val["file"]))
+      if val.has_key("converted"):
+        strn=val["converted"]+" "+val["file"]
+      else:
+        strn=val["file"]
+      if  (val["file"] != None and \
+          self.htmlLink(strn) != self.widgets[rowCnt][columnCnt].toPlainText()):
+        self.widgets[rowCnt][columnCnt].setText(self.htmlLink(strn))
       columnCnt+=1
       progress = val["totalProgress"]
       if type(val["totalProgress"]) is str:
@@ -383,7 +386,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           self.results[url]["state"] = "done"
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "100%"
-        self.progressPage.updateContent(self.results,True)
+        self.progressPage.updateContent(self.results)
       else:
         if  self.results[url]["state"] != "Downloading" \
             and not pQueued.search(state["state"]):
@@ -402,20 +405,23 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
       for cfile,state in ConvertWorker.result.iteritems():
         converterCnt+=1
         for key,value in self.results.iteritems():
-          if value["file"] == cfile:
-            if  value["state"] != "Converting" \
-                and not pQueued.search(state["state"]):
-              value["state"] = "Converting"
-            value["stepProgress"] = state["state"]
-            if "done" == state["state"]:
-              value["state"] = state["state"]
-              converterDoneCnt+=1
-              total=100
-              value["file"]=state["workingFile"]+" "+value["file"]
-              self.progressPage.updateContent(self.results,True)
-            else:
-              total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/2+50
-            value["totalProgress"] = "%.1lf%%" %(total)
+          try:
+            if re.search(cfile,value["file"]):
+              if  value["state"] != "Converting" \
+                  and not pQueued.search(state["state"]):
+                value["state"] = "Converting"
+              value["stepProgress"] = state["state"]
+              if "done" == state["state"]:
+                value["state"] = state["state"]
+                converterDoneCnt+=1
+                total=100
+                value["converted"] = state["workingFile"]
+                self.progressPage.updateContent(self.results)
+              else:
+                total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/2+50
+              value["totalProgress"] = "%.1lf%%" %(total)
+          except TypeError:
+            pass
       ConvertWorker.resultLock.release()
     
     logging.debug(self.results)
