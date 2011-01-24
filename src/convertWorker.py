@@ -150,14 +150,20 @@ class ConvertWorker(threading.Thread):
       ConvertWorker.resultLock.acquire()
       if "done" == state:
         ConvertWorker.queue.task_done()
-        ConvertWorker.result[self.convertingFile] = {"state" : state, 
+        ConvertWorker.result[self.convertingFile] = {
+                                                     "state" : state, 
                                                      "step": self.currentRunning,
-                                                     "stepState": state}
+                                                     "stepState": state,
+                                                     "workingFile": self.workingFile.last()
+                                                     }
       else:
         total=(int(self.totalProgress) + float(state.strip("%"))/100)/float(self.totalSteps)*100
-        ConvertWorker.result[self.convertingFile] = {"state": str(total)+"%",
+        ConvertWorker.result[self.convertingFile] = {
+                                                     "state": str(total)+"%",
                                                      "step": self.currentRunning,
-                                                     "stepState": state}
+                                                     "stepState": state,
+                                                     "workingFile": self.workingFile.last()
+                                                     }
       logging.debug(self.convertingFile)
       logging.debug(self.result[self.convertingFile])
       ConvertWorker.resultLock.release()
@@ -412,10 +418,10 @@ if __name__== '__main__':
     thread.start()
 
   ConvertWorker.queue.put("../test/Aladdin_intro_German-bJAyLYR71NM.flv")
-  ConvertWorker.queue.put("../test/Warum_bin_ich_so_fr_hlich-jrZHxIA0eVU.flvAaAStayInTehLight")
+#  ConvertWorker.queue.put("../test/Warum_bin_ich_so_fr_hlich-jrZHxIA0eVU.flvAaAStayInTehLight")
   ConvertWorker.queue.put("../test/Gummib_renbande_Titelsong_Lyrics-O5sd_CuZxNc.flv")
-  ConvertWorker.queue.put("../test/Speedy_Gonzales_Die_schnellste_Maus_von_Mexiko_german_Intro-lfEDO1uZxVA.flv")
-  ConvertWorker.queue.put("../test/Warum_bin_ich_so_fr_hlich-jrZHxIA0eVU.flv")
+#  ConvertWorker.queue.put("../test/Speedy_Gonzales_Die_schnellste_Maus_von_Mexiko_german_Intro-lfEDO1uZxVA.flv")
+#  ConvertWorker.queue.put("../test/Warum_bin_ich_so_fr_hlich-jrZHxIA0eVU.flv")
   time.sleep(0.1)
   cnt=1
   while cnt > 0:

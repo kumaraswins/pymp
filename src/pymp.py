@@ -46,36 +46,46 @@ class ProgressPage(QtGui.QWidget):
     columnCnt=0
     headerCnt=0
     label=QtGui.QLabel(self)
-    label.setText("Url")
+    label.setText(translate("Url"))
     self.mainLayout.addWidget(label,rowCnt+headerCnt,columnCnt)
     columnCnt+=1
     label=QtGui.QLabel(self)
-    label.setText("Step")
+    label.setText(translate("Step"))
     self.mainLayout.addWidget(label,rowCnt+headerCnt,columnCnt)
     columnCnt+=1
     label=QtGui.QLabel(self)
-    label.setText("Filename")
+    label.setText(translate("Filename"))
     self.mainLayout.addWidget(label,rowCnt+headerCnt,columnCnt)
     columnCnt+=1
     label=QtGui.QLabel(self)
-    label.setText("Progress")
+    label.setText(translate("Progress"))
     self.mainLayout.addWidget(label,rowCnt+headerCnt,columnCnt)
     columnCnt+=1
     headerCnt+=1
     for key,val in information.iteritems():
       columnCnt=0
       self.widgets.append([])
-      textEdit = QtGui.QTextEdit(self)
-      textEdit.setText(key)
+      textEdit = QtGui.QTextBrowser(self)
+      textEdit.setText(self.htmlLink(key,True))
       textEdit.setReadOnly(True)
+      textEdit.setOpenExternalLinks(True)
+      textEdit.setOpenLinks(False)
+      self.connect(textEdit,
+                   QtCore.SIGNAL("anchorClicked(QUrl)"),
+                   self.redirect)
       self.widgets[rowCnt].append(textEdit)
       self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt])-1],
                                 rowCnt+headerCnt,
                                 columnCnt)
       columnCnt+=1
-      textEdit = QtGui.QTextEdit(self)
+      textEdit = QtGui.QTextBrowser(self)
       textEdit.setText(val["state"])
       textEdit.setReadOnly(True)
+      textEdit.setOpenExternalLinks(True)
+      textEdit.setOpenLinks(False)
+      self.connect(textEdit,
+                   QtCore.SIGNAL("anchorClicked(QUrl)"),
+                   self.redirect)
       self.widgets[rowCnt].append(textEdit)
       self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt])-1],
                                 rowCnt+headerCnt,
@@ -116,9 +126,23 @@ class ProgressPage(QtGui.QWidget):
   def redirect(self,url):
     return QtGui.QDesktopServices.openUrl(url)
   
-  def htmlLink(self,link):
-    if None != link and os.path.isfile(link):
+  def htmlLink(self,link,force=False):
+    toReturn=""
+    try:
+      words=link.split(" ")
+      for i in words:
+        toReturn+=self.singleLink(i, force)
+        toReturn+=" "
+      toReturn.rstrip()
+    finally:
+      return toReturn
+  
+  def singleLink(self,link,force=False):
+    if  (None != link and os.path.isfile(link)) \
+        or force == True:
       toReturn="<a href=\""+link+"\">"+link+"</a>"
+    elif None == link:
+      toReturn = ""
     else:
       toReturn=link
     return toReturn
@@ -128,8 +152,8 @@ class ProgressPage(QtGui.QWidget):
     columnCnt=0
     for key,val in information.iteritems():
       columnCnt=0
-      if key != self.widgets[rowCnt][columnCnt].toPlainText():
-        self.widgets[rowCnt][columnCnt].setText(key)
+      if self.htmlLink(key, True) != self.widgets[rowCnt][columnCnt].toPlainText():
+        self.widgets[rowCnt][columnCnt].setText(self.htmlLink(key,True))
       columnCnt+=1
       if val["state"] != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(val["state"])
@@ -346,7 +370,8 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
         if  type(state["file"]) == types.NoneType\
             or not os.path.isfile(state["file"]):
           global LOG_FILENAME
-          self.results[url]["state"] = "Download error. See " +LOG_FILENAME+ " for more information."
+          fileName=os.path.basename(LOG_FILENAME)
+          self.results[url]["state"] = "Download error. See <a href=\"" +LOG_FILENAME+ "\">"+fileName+"</a> for more information."
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "100%"
         elif state["file"] not in ConvertWorker.result.keys()  and self.checkBoxMp3.isChecked():
@@ -386,6 +411,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
               value["state"] = state["state"]
               converterDoneCnt+=1
               total=100
+              value["file"]=state["workingFile"]+" "+value["file"]
               self.progressPage.updateContent(self.results,True)
             else:
               total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/2+50
@@ -480,22 +506,19 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
   
   def onLoadList(self):
     listFile=QtGui.QFileDialog.getOpenFileName(parent=self,
-                                               caption=self.translate("Select download list"))
-    f=open(listFile,"r").read()
-    try:
-      self.inputBrowser.setText(f)
-    finally:
+                                               caption=translate("Select download list"))
+    if os.path.isfile(listFile):
+      f=open(listFile,"r")
+      self.inputPage.inputBrowser.setText(f.read())
       f.close()
   
   def onSaveList(self):
     file=QtGui.QFileDialog.getSaveFileName(parent=self, 
-                                           caption=self.translate("Save to convertingFile"))
-    content=self.inputBrowser.toPlainText()
+                                           caption=translate("Save to convertingFile"))
+    content=self.inputPage.inputBrowser.toPlainText()
     f=open(file,"w")
-    try:
-      f.write(content)
-    finally:
-      f.close()
+    f.write(content)
+    f.close()
   
   def onAbout(self):
     dlg=AboutDialog(self.windowTitle(),
@@ -522,7 +545,7 @@ http://www.youtube.com/watch?v=O5sd_CuZxNc
 http://www.youtube.com/watch?v=O5sd_CuZxNcaa
   """
   #logger
-  LOG_FILENAME=os.path.basename(__file__)+".log"
+  LOG_FILENAME=os.path.abspath(__file__)+".log"
   logging.basicConfig(
                       filename=LOG_FILENAME,
                       filemode="w",
