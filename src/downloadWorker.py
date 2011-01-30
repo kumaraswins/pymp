@@ -120,10 +120,18 @@ class DownloadWorker(threading.Thread):
   
   def killSubprocess(self):
     if self.p != None:
-      self.p.terminate()
-      time.sleep(0.01)
+      try:
+        self.p.terminate()
+      except AttributeError:
+        #workaround for old python versions
+        subprocess.call(["kill","-15",str(self.p.pid)])
+      time.sleep(0.02)
       if None != self.p and None == self.p.poll():
-        self.p.kill()
+        try:
+          self.p.kill()
+        except AttributeError:
+          #workaround for old python versions
+          subprocess.call(["kill","-9",str(self.p.pid)])
       self.p = None
     return
 

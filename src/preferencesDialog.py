@@ -34,11 +34,11 @@ class Ui_PreferencesDialog(QtGui.QDialog):
   def setupUi(self):
     #prepare the window
     self.setObjectName(_fromUtf8("PreferencesDialog"))
-    self.resize(800, 480)
+#    self.resize(800, 480)
     self.mainLayout=QtGui.QVBoxLayout()
     self.setLayout(self.mainLayout)
     #the gridLayout
-    self.scrollArea=QtGui.QScrollArea()
+    self.scrollArea=QtGui.QScrollArea(self)
     self.gridWidget=QtGui.QWidget(self.scrollArea)
     self.gridLayout=QtGui.QGridLayout(self.gridWidget)
     self.gridWidget.setLayout(self.gridLayout)
@@ -104,6 +104,7 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     
     self.gridWidget.show()
     self.scrollArea.setWidget(self.gridWidget)
+    self.scrollArea.setWidgetResizable(True)
     self.mainLayout.addWidget(self.scrollArea)
     self.mainLayout.addLayout(self.buttonLayout)
     self.retranslate()

@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os,re,logging,types,tempfile,subprocess
+import os,re,logging,types,tempfile,subprocess,sys
 from PyQt4 import QtGui, QtCore
 from qtUtils import *
 from ui import *
@@ -301,6 +301,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.progressPage = None
     self.downloaders = None
     self.converters = None
+    self.closeWhenFinished = False
     return
   
   def __del__(self):
@@ -455,6 +456,8 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
   def uiAfterActions(self):
     self.timer.stop()
     self.cancelButton.setText("&Done")
+    if True == self.closeWhenFinished:
+      self.close()
     return
   
   def onCancel(self):
@@ -505,6 +508,9 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
         dialog.setText(infoStr+"\n\nYou may forgot to enter a URL.")
       else:
         dialog.setText(infoStr+"\n\nYou forgot to check on of the check boxes right next to the download button.")
+      if True == self.closeWhenFinished:
+        print(dialog.text())
+        sys.exit(0)
       dialog.exec_()
     else:
       self.performActions()
@@ -513,11 +519,14 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
   def onLoadList(self):
     listFile=QtGui.QFileDialog.getOpenFileName(parent=self,
                                                caption=translate("Select download list"))
-    if os.path.isfile(listFile):
-      f=open(listFile,"r")
+    return self.loadFile(listFile)
+
+  def loadFile(self,file):
+    if os.path.isfile(file):
+      f=open(file,"r")
       self.inputPage.inputBrowser.setText(f.read())
       f.close()
-  
+
   def onSaveList(self):
     file=QtGui.QFileDialog.getSaveFileName(parent=self, 
                                            caption=translate("Save to convertingFile"))
@@ -536,12 +545,56 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
   def onPreferences(self):
     dlg=PreferencesDialog(self.settings)
     dlg.exec_()
-    self.settings.readFromFile()
+    self.readSettings()
     return
 
 
 if __name__ == '__main__':
-  import sys
+  import optparse
+  parser=optparse.OptionParser(usage="usage: %prog [options] url1 url2")
+  parser.add_option("-D", 
+                    "--debug",
+                    dest="debugLevel",
+                    action="store",
+                    type="int",
+                    default=20,
+                    help="""Set the debug output level (default %default). The lower the number, the more gets logged. Example levels are:
+CRITICAL 50\n
+ERROR 40\n
+WARNING 30\n
+INFO 20\n
+DEBUG 10""")
+  parser.add_option("-l", 
+                    "--list",
+                    dest="listFile",
+                    action="store",
+                    type="str",
+                    help="""Load a file containing a download list""")
+  parser.add_option("-c", 
+                    "--close",
+                    dest="close",
+                    action="store_true",
+                    default="store_false",
+                    help="""Close and exit when finished.""")
+  parser.add_option("-d", 
+                    "--download",
+                    dest="download",
+                    action="store_true",
+                    default="store_false",
+                    help="""Start downloading immediatly. Needs either --video or --mp3.""")
+  parser.add_option("-m", 
+                    "--mp3",
+                    dest="downloadMp3",
+                    action="store_true",
+                    default="store_false",
+                    help="""Check the mp3 button.""")
+  parser.add_option("-v", 
+                    "--video",
+                    dest="downloadVideo",
+                    action="store_true",
+                    default="store_false",
+                    help="""Check the video button.""")
+  (options, args) = parser.parse_args()
   """
 #For Testing:
 http://www.youtube.com/watch?v=lfEDO1uZxVA
@@ -555,11 +608,31 @@ http://www.youtube.com/watch?v=O5sd_CuZxNcaa
   logging.basicConfig(
                       filename=LOG_FILENAME,
                       filemode="w",
-                      level=logging.DEBUG,
+                      level=options.debugLevel,
                       format = "%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt = "%F %H:%M:%S")
   
-  app = QtGui.QApplication(sys.argv) 
+  app = QtGui.QApplication(sys.argv)
   ui = Ui() 
-  ui.show() 
+  ui.show()
+  #option processing
+  if options.close:
+    if True == options.close:
+      ui.closeWhenFinished = True
+  if options.listFile:
+    ui.loadFile(options.listFile)
+  if options.downloadMp3:
+    if True == options.downloadMp3:
+      ui.checkBoxMp3.setChecked(True)
+  if options.downloadVideo:
+    if True == options.downloadVideo:
+      ui.checkBoxFlash.setChecked(True)
+  #add command line arguments to the input browser
+  for i in args:
+    text=str(ui.inputPage.inputBrowser.toPlainText())
+    text+="\n"+i
+    ui.inputPage.inputBrowser.setText(text)
+  if options.download:
+    if True == options.download:
+      ui.onDownload()
   sys.exit(app.exec_())

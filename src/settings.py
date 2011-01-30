@@ -29,7 +29,7 @@ class Settings(dict):
                      "numberOfSimultaniousDownloads":"1",
                      "numberOfSimultaniousConversions":"1",
                      "download.numberOfRetries":"0",
-                     "download.downloader.path":"youtubeDownload.py",
+                     "download.downloader.path":"./youtubeDownload.py",
                      "mplayer.path":"mplayer",
                      "ffmpeg.path":"ffmpeg",
                      "sox.path":"sox",
