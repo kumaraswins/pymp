@@ -261,11 +261,11 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
   def __init__(self):
     QtGui.QMainWindow.__init__(self)
     #directory setup
-    if isMaemo5() and os.path.isdir(os.path.expanduser("~/MyDocs")):
-      self.settingsPath=os.path.expanduser("~/MyDocs")
-    else:
-      self.settingsPath=os.path.expanduser("~")
-    self.settings=Settings(self.settingsPath+"/.pymprc")
+    global LOG_PATH
+    global PATH
+    self.settingsPath=LOG_PATH
+    self.installationPath=PATH
+    self.settings=Settings(self.settingsPath+"/pymprc",PATH)
     self.readSettings()
     self.timer = QtCore.QTimer()
     self.setupUi(self)
@@ -604,14 +604,19 @@ http://www.youtube.com/watch?v=O5sd_CuZxNc
 http://www.youtube.com/watch?v=O5sd_CuZxNcaa
   """
   #logger
-  LOG_FILENAME=os.path.abspath(__file__)+".log"
+  LOG_PATH=os.path.expanduser("~/."+os.path.basename(__file__))
+  PATH=os.path.dirname(os.path.realpath(__file__))
+  if not os.path.exists(LOG_PATH):
+    os.mkdir(LOG_PATH)
+  LOG_FILENAME=LOG_PATH+"/"+os.path.basename(__file__)+".log"
   logging.basicConfig(
                       filename=LOG_FILENAME,
                       filemode="w",
                       level=options.debugLevel,
                       format = "%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt = "%F %H:%M:%S")
-  
+  logging.debug(PATH)
+  logging.debug(LOG_PATH)
   app = QtGui.QApplication(sys.argv)
   ui = Ui() 
   ui.show()

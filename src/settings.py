@@ -21,7 +21,7 @@ import re,os,logging
 from maemoUtils import *
 
 class Settings(dict):
-  def __init__(self,file):
+  def __init__(self,file,installationPath):
     dict.__init__({})
     self.settingsFile = file
     self.defaults = {
@@ -29,7 +29,7 @@ class Settings(dict):
                      "numberOfSimultaniousDownloads":"1",
                      "numberOfSimultaniousConversions":"1",
                      "download.numberOfRetries":"0",
-                     "download.downloader.path":"./youtubeDownload.py",
+                     "download.downloader.path":installationPath+"/youtubeDownload.py",
                      "mplayer.path":"mplayer",
                      "ffmpeg.path":"ffmpeg",
                      "sox.path":"sox",
@@ -42,7 +42,6 @@ class Settings(dict):
     self.clear()
     pattern=re.compile(r"(.*?)(#.*|$)")
     logging.debug("")
-    helper=Settings(self.settingsFile)
     try:
       fileObject=open(self.settingsFile,"r")
       logging.debug("")
