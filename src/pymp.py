@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os,re,logging,types,tempfile,subprocess,sys
+import os,re,logging,types,tempfile,subprocess,sys,webbrowser
 from PyQt4 import QtGui, QtCore
 from qtUtils import *
 from ui import *
@@ -28,8 +28,9 @@ from preferencesDialog import Ui_PreferencesDialog
 from settings import Settings
 
 class ProgressPage(QtGui.QWidget):
-  def __init__(self,information):
+  def __init__(self,information,settings):
     QtGui.QWidget.__init__(self)
+    self.settings = settings
     self.boxLayout = QtGui.QHBoxLayout(self)
     self.boxLayout.setObjectName("boxLayout")
     self.setLayout(self.boxLayout)
@@ -124,7 +125,26 @@ class ProgressPage(QtGui.QWidget):
     return
   
   def redirect(self,url):
-    return QtGui.QDesktopServices.openUrl(url)
+    qurl=QtCore.QUrl(url)
+    if type(url) == QtCore.QUrl:
+      qurl=url
+      url=str(url.toString())
+    else:
+      url = str(url)
+    if isMaemo5():
+      if url.find("http") >= 0:
+        return QtGui.QDesktopServices.openUrl(qurl)
+      else:
+        subprocess.Popen(["osso-xterm -e \"%s %s\""%(self.settings["mplayer.path"],os.path.abspath(url))],shell=True)
+    elif os.name == 'mac':
+      subprocess.Popen(('open', url))
+    elif os.name == 'nt':
+      subprocess.Popen(('start', url))
+    elif os.name == 'posix':
+      subprocess.Popen(('xdg-open', url))
+    elif type(qurl) == QtCore.QUrl:
+      return QtGui.QDesktopServices.openUrl(qurl)
+#    return webbrowser.open(url,new=1,autoraise=True)
   
   def htmlLink(self,link,force=False):
     toReturn=""
@@ -433,7 +453,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     
     if None == self.progressPage:
       logging.debug("creating progressPage")
-      self.progressPage = ProgressPage(self.results)
+      self.progressPage = ProgressPage(self.results,self.settings)
       self.pages.addWidget(self.progressPage)
       self.pages.setCurrentWidget(self.progressPage)
       self.pages.setCurrentIndex(self.pages.count()-1)
