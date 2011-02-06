@@ -81,7 +81,6 @@ class DownloadWorker(threading.Thread):
                           stderr=self.errFile)
       while None != self.p and None == self.p.poll():
         time.sleep(0.2)
-        self.updateTargetFile()
         self.updateResult(self.getState())
         
       self.updateTargetFile()

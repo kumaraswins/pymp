@@ -192,8 +192,8 @@ class ProgressPage(QtGui.QWidget):
         strn=val["converted"]+" "+val["file"]
       else:
         strn=val["file"]
-      if  (val["file"] != None and \
-          strn != self.widgets[rowCnt][columnCnt].toPlainText()):
+      if  val["file"] != None \
+          and strn != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(self.htmlLink(strn))
       columnCnt+=1
       progress = val["totalProgress"]
