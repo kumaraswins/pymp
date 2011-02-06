@@ -34,4 +34,3 @@ def isMaemo5():
     return True
   else:
     return False
-
