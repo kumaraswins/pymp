@@ -42,17 +42,23 @@ class DownloadWorker(threading.Thread):
   def __init__(self,settings):
     threading.Thread.__init__(self)
     self.p = None
-    self.options=["-t"]
-    self.readSettings(settings)
     self.settings=settings
     return
   
-  def readSettings(self,settings=None):
-    if None != settings:
+  def readSettings(self):
+    self.settings.readFromFile()
+    self.options=["-t"]
+    
+    if None != self.settings:
       keyword="download.numberOfRetries"
-      if keyword in settings.keys():
+      if keyword in self.settings.keys():
         self.options.append("-R")
-        self.options.append(str(settings[keyword]))
+        self.options.append(str(self.settings[keyword]))
+    if self.settings["download.continue"] == "True":
+      self.options.append("-c")
+    if self.settings["download.overwrite"] == "False":
+      self.options.append("-w")
+      
     for i in self.options:
       logging.debug(type(i).__name__+" "+i)
     return
@@ -65,6 +71,7 @@ class DownloadWorker(threading.Thread):
       self.p = None
       self.tmpFile = tempfile.TemporaryFile()
       self.errFile = tempfile.TemporaryFile()
+      self.readSettings()
       call=[]
       call.append(self.settings["download.downloader.path"])
       call+=self.options
@@ -76,23 +83,38 @@ class DownloadWorker(threading.Thread):
         time.sleep(0.2)
         self.updateTargetFile()
         self.updateResult(self.getState())
+        
+      self.updateTargetFile()
       self.updateResult("done")
       self.p=None
+      #only for debugging
+#      self.tmpFile.seek(0)
+#      logging.debug(self.tmpFile.read())
       self.errFile.seek(0)
       errors=self.errFile.read()
       if errors != "":
-        logging.error(errors)
+        logging.error(self.url+": "+errors)
+      logging.debug(self.result[self.url])
     return
 
   def updateTargetFile(self):
     if None == self.targetFile:
-      pattern = re.compile(r"\[download\] Destination: (.*)$")
+      #First try to find it when downloaded the regular way
+      patternDownloading = re.compile(r"\[download\] Destination: (.*)$")
+      #2nd try: maybe it was already downloaded
+      patternAlreadyDone = re.compile(r"\[download\] (.*?) has already.*$")
       self.tmpFile.seek(0)
       fileContent=self.tmpFile.read()
       for i in fileContent.split("\n"):
-        if pattern.search(i):
-          logging.debug(i)
-          self.targetFile = pattern.findall(i)[0]
+        if patternDownloading.search(i):
+          self.targetFile = patternDownloading.findall(i)[0]
+          logging.debug(self.targetFile+" "+i)
+          return
+        if patternAlreadyDone.search(i):
+          self.targetFile = patternAlreadyDone.findall(i)[0]
+          logging.debug(self.targetFile+" "+i)
+          return
+    return
     
   def updateResult(self,state):
     DownloadWorker.resultLock.acquire()

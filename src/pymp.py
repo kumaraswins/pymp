@@ -37,9 +37,13 @@ class ProgressPage(QtGui.QWidget):
     self.groupBox = QtGui.QGroupBox(self)
     self.groupBox.setObjectName("groupBox")
     self.boxLayout.addWidget(self.groupBox)
+
+    self.scrollArea = QtGui.QScrollArea(self)
+    self.gridWidget= QtGui.QWidget(self.scrollArea)
     self.mainLayout = QtGui.QGridLayout()
     self.mainLayout.setObjectName("mainLayout")
-    self.groupBox.setLayout(self.mainLayout)
+    self.gridWidget.setLayout(self.mainLayout)
+    self.scrollLayout = QtGui.QHBoxLayout()
     
     self.lines = len(information)
     self.widgets=[]
@@ -116,6 +120,11 @@ class ProgressPage(QtGui.QWidget):
       columnCnt+=1
       rowCnt+=1
     
+    self.gridWidget.show()
+    self.scrollArea.setWidget(self.gridWidget)
+    self.scrollArea.setWidgetResizable(True)
+    self.scrollLayout.addWidget(self.scrollArea)
+    self.groupBox.setLayout(self.scrollLayout)
     self.retranslate()
     self.updateContent(information)
     return
@@ -141,7 +150,8 @@ class ProgressPage(QtGui.QWidget):
     elif os.name == 'nt':
       subprocess.Popen(('start', url))
     elif os.name == 'posix':
-      subprocess.Popen(('xdg-open', url))
+      return QtGui.QDesktopServices.openUrl(qurl)
+#      subprocess.Popen(('xdg-open', url))
     elif type(qurl) == QtCore.QUrl:
       return QtGui.QDesktopServices.openUrl(qurl)
 #    return webbrowser.open(url,new=1,autoraise=True)
@@ -160,7 +170,7 @@ class ProgressPage(QtGui.QWidget):
   def singleLink(self,link,force=False):
     if  (None != link and os.path.isfile(link)) \
         or force == True:
-      toReturn="<a href=\""+link+"\">"+link+"</a>"
+      toReturn="<a href=\""+os.path.abspath(link)+"\">"+link+"</a>"
     elif None == link:
       toReturn = ""
     else:
@@ -230,6 +240,10 @@ class PreferencesDialog(Ui_PreferencesDialog):
     self.spinDownloads.setValue(int(self.settings["numberOfSimultaniousDownloads"]))
     self.spinConversions.setValue(int(self.settings["numberOfSimultaniousConversions"]))
     self.spinRetry.setValue(int(self.settings["download.numberOfRetries"]))
+    if self.settings["download.continue"] == "True":
+      self.buttonDownloaderContinue.setChecked(True)
+    if self.settings["download.overwrite"] == "True":
+      self.buttonDownloaderOverwrite.setChecked(True)
     return
 
   def readSettings(self):
@@ -242,6 +256,14 @@ class PreferencesDialog(Ui_PreferencesDialog):
     self.settings["download.numberOfRetries"]=str(self.spinRetry.value())
     self.settings["numberOfSimultaniousConversions"]=str(self.spinConversions.value())
     self.settings["numberOfSimultaniousDownloads"]=str(self.spinDownloads.value())
+    if self.buttonDownloaderContinue.isChecked() == True:
+      self.settings["download.continue"] = "True"
+    else:
+      self.settings["download.continue"] = "False"
+    if self.buttonDownloaderOverwrite.isChecked() == True:
+      self.settings["download.overwrite"] = "True"
+    else:
+      self.settings["download.overwrite"] = "False"
     self.saveSettings()
     self.close()
     return
@@ -383,27 +405,33 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     pQueued=re.compile(r"queued",re.IGNORECASE)
     downloadDoneCnt=0
     downloadCnt=0
+    downloadErrorCnt=0
     converterDoneCnt=0
     converterCnt=0
     logging.debug(" ")
     DownloadWorker.resultLock.acquire()
     for url,state in DownloadWorker.result.iteritems():
       downloadCnt+=1
-      if "done" == state["state"]:
+      if  state["state"].find("done") >= 0\
+          or state["state"].find("error") >= 0:
         downloadDoneCnt+=1
         if  type(state["file"]) == types.NoneType\
             or not os.path.isfile(state["file"]):
           global LOG_FILENAME
           fileName=os.path.basename(LOG_FILENAME)
+          self.results[url]["file"] = state["file"]
           self.results[url]["state"] = "Download error. See <a href=\"" +LOG_FILENAME+ "\">"+fileName+"</a> for more information."
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "100%"
+          downloadErrorCnt+=1
         elif state["file"] not in ConvertWorker.result.keys()  and self.checkBoxMp3.isChecked():
+          self.results[url]["file"] = state["file"]
           self.results[url]["state"] = "Queued for converting"
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "50%"
           ConvertWorker.addResult(state["file"],"queued 0%",True)
         elif not self.checkBoxMp3.isChecked():
+          self.results[url]["file"] = state["file"]
           self.results[url]["state"] = "done"
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "100%"
@@ -428,11 +456,14 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
         for key,value in self.results.iteritems():
           try:
             if re.search(cfile,value["file"]):
+              #Does the state need to be updated?
               if  value["state"] != "Converting" \
-                  and not pQueued.search(state["state"]):
+                  and not pQueued.search(value["state"]):
                 value["state"] = "Converting"
+              
               value["stepProgress"] = state["state"]
-              if "done" == state["state"]:
+              if  state["state"].find("done") >= 0 \
+                  or state["state"].find("error") >= 0:
                 value["state"] = state["state"]
                 converterDoneCnt+=1
                 total=100
@@ -446,10 +477,10 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
       ConvertWorker.resultLock.release()
     
     logging.debug(self.results)
-    logging.debug("%i %i %i %i"%(downloadCnt,downloadDoneCnt,converterCnt,converterDoneCnt))
+    logging.debug("%i %i %i %i %i"%(downloadCnt,downloadDoneCnt,downloadErrorCnt,converterCnt,converterDoneCnt))
     downloadCnt = len(DownloadWorker.result)
     converterCnt = len(ConvertWorker.result)
-    logging.debug("%i %i %i %i"%(downloadCnt,downloadDoneCnt,converterCnt,converterDoneCnt))
+    logging.debug("%i %i %i %i %i"%(downloadCnt,downloadDoneCnt,downloadErrorCnt,converterCnt,converterDoneCnt))
     
     if None == self.progressPage:
       logging.debug("creating progressPage")
@@ -466,7 +497,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
       self.progressPage.updateContent(self.results)
     
     if downloadCnt == downloadDoneCnt and downloadCnt > 0:
-      if self.checkBoxMp3.isChecked():
+      if self.checkBoxMp3.isChecked() and downloadDoneCnt > downloadErrorCnt:
         if converterCnt == converterDoneCnt and converterCnt > 0:
           self.uiAfterActions()
       else:

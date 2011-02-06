@@ -30,6 +30,8 @@ class Settings(dict):
                      "numberOfSimultaniousConversions":"1",
                      "download.numberOfRetries":"0",
                      "download.downloader.path":installationPath+"/youtubeDownload.py",
+                     "download.continue":"True",
+                     "download.overwrite":"False",
                      "mplayer.path":"mplayer",
                      "ffmpeg.path":"ffmpeg",
                      "sox.path":"sox",

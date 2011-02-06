@@ -47,50 +47,99 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     columnCount=0
     self.labelPath=QtGui.QLabel(self)
     self.labelPath.setText("Working directory")
-    self.gridLayout.addWidget(self.labelPath,rowCount,columnCount)
     columnCount+=1
     self.buttonPathOfUser=QtGui.QPushButton(self)
     self.buttonPathOfUser.setText("~")
-    self.gridLayout.addWidget(self.buttonPathOfUser,rowCount,columnCount)
+    
     rowCount+=1
     columnCount=0
     self.labelDownloads=QtGui.QLabel(self)
     self.labelDownloads.setText("Number of simultaneous downloads (needs transport bandwidth)")
-    self.gridLayout.addWidget(self.labelDownloads,rowCount,columnCount)
     columnCount+=1
     self.spinDownloads=QtGui.QSpinBox(self)
     self.spinDownloads.setMinimum(1)
     self.spinDownloads.setMaximum(999)
-    self.gridLayout.addWidget(self.spinDownloads,rowCount,columnCount)
+    
     rowCount+=1
     columnCount=0
     self.labelConversions=QtGui.QLabel(self)
     self.labelConversions.setText("Number of simultaneous conversions (needs computing power)")
-    self.gridLayout.addWidget(self.labelConversions,rowCount,columnCount)
     columnCount+=1
     self.spinConversions=QtGui.QSpinBox(self)
     self.spinConversions.setMinimum(1)
     self.spinConversions.setMaximum(999)
-    self.gridLayout.addWidget(self.spinConversions,rowCount,columnCount)
+    
     rowCount+=1
     columnCount=0
     self.labelDownloaderVersion=QtGui.QLabel(self)
     self.labelDownloaderVersion.setText("Downloader Version (click to update)")
-    self.gridLayout.addWidget(self.labelDownloaderVersion,rowCount,columnCount)
     columnCount+=1
     self.buttonDownloaderVersion=QtGui.QPushButton(self)
     self.buttonDownloaderVersion.setText("...")
-    self.gridLayout.addWidget(self.buttonDownloaderVersion,rowCount,columnCount)
+    
     rowCount+=1
     columnCount=0
     self.labelRetry=QtGui.QLabel(self)
     self.labelRetry.setText("Number of download retries")
-    self.gridLayout.addWidget(self.labelRetry,rowCount,columnCount)
     columnCount+=1
     self.spinRetry=QtGui.QSpinBox(self)
     self.spinRetry.setMinimum(0)
     self.spinRetry.setMaximum(99)
+    
+    rowCount+=1
+    columnCount=0
+    self.labelDownloaderOverwrite=QtGui.QLabel(self)
+    self.labelDownloaderOverwrite.setText("Downloader: Overwrite exisiting files")
+    columnCount+=1
+    self.buttonDownloaderOverwrite=QtGui.QPushButton(self)
+    self.buttonDownloaderOverwrite.setText("Overwrite")
+    self.buttonDownloaderOverwrite.setCheckable(True)
+
+    rowCount+=1
+    columnCount=0
+    self.labelDownloaderContinue=QtGui.QLabel(self)
+    self.labelDownloaderContinue.setText("Downloader: Continue partial downloaded files.")
+    columnCount+=1
+    self.buttonDownloaderContinue=QtGui.QPushButton(self)
+    self.buttonDownloaderContinue.setText("Continue")
+    self.buttonDownloaderContinue.setCheckable(True)
+
+    #ordering of layout content
+    rowCount=0
+    columnCount=0
+    self.gridLayout.addWidget(self.labelPath,rowCount,columnCount)
+    columnCount+=1
+    self.gridLayout.addWidget(self.buttonPathOfUser,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.gridLayout.addWidget(self.labelConversions,rowCount,columnCount)
+    columnCount+=1
+    self.gridLayout.addWidget(self.spinConversions,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.gridLayout.addWidget(self.labelDownloaderVersion,rowCount,columnCount)
+    columnCount+=1
+    self.gridLayout.addWidget(self.buttonDownloaderVersion,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.gridLayout.addWidget(self.labelDownloads,rowCount,columnCount)
+    columnCount+=1
+    self.gridLayout.addWidget(self.spinDownloads,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.gridLayout.addWidget(self.labelRetry,rowCount,columnCount)
+    columnCount+=1
     self.gridLayout.addWidget(self.spinRetry,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.gridLayout.addWidget(self.labelDownloaderOverwrite)
+    columnCount+=1
+    self.gridLayout.addWidget(self.buttonDownloaderOverwrite)
+    rowCount+=1
+    columnCount=0
+    self.gridLayout.addWidget(self.labelDownloaderContinue)
+    columnCount+=1
+    self.gridLayout.addWidget(self.buttonDownloaderContinue)
     
     self.buttonLayout=QtGui.QHBoxLayout()
     self.buttonLayout.addStretch()
@@ -119,6 +168,10 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     self.labelRetry.setText(translate("Number of download retries"))
     self.buttonOk.setText(translate("&Ok"))
     self.buttonCancel.setText(translate("&Cancel"))
+    self.labelDownloaderContinue.setText(translate("Downloader: Continue partial downloaded files."))
+    self.labelDownloaderOverwrite.setText(translate("Downloader: Overwrite exisiting files"))
+    self.buttonDownloaderContinue.setText(translate("Co&ntinue"))
+    self.buttonDownloaderOverwrite.setText(translate("Over&write"))
     return
     
 if __name__ == '__main__':
