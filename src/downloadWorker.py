@@ -87,8 +87,8 @@ class DownloadWorker(threading.Thread):
       self.updateResult("done")
       self.p=None
       #only for debugging
-#      self.tmpFile.seek(0)
-#      logging.debug(self.tmpFile.read())
+      self.tmpFile.seek(0)
+      logging.debug(self.tmpFile.read())
       self.errFile.seek(0)
       errors=self.errFile.read()
       if errors != "":

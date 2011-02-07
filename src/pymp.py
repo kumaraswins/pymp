@@ -29,6 +29,7 @@ from settings import Settings
 
 class ProgressPage(QtGui.QWidget):
   def __init__(self,information,settings):
+    global LOG_FILENAME
     QtGui.QWidget.__init__(self)
     self.settings = settings
     self.boxLayout = QtGui.QHBoxLayout(self)
@@ -134,15 +135,20 @@ class ProgressPage(QtGui.QWidget):
     return
   
   def redirect(self,url):
-    qurl=QtCore.QUrl(url)
     if type(url) == QtCore.QUrl:
       qurl=url
       url=str(url.toString())
     else:
       url = str(url)
+      qurl=QtCore.QUrl(url)
+      
+    logging.debug(url)
+    logging.debug(qurl)
     if isMaemo5():
-      if url.find("http") >= 0:
-        return QtGui.QDesktopServices.openUrl(qurl)
+      if  url.find("http") >= 0\
+          or re.search(os.path.basename(LOG_FILENAME),url):
+        QtGui.QDesktopServices.openUrl(qurl)
+        return
       else:
         subprocess.Popen(["osso-xterm -e \"%s %s\""%(self.settings["mplayer.path"],os.path.abspath(url))],shell=True)
     elif os.name == 'mac':
@@ -150,11 +156,11 @@ class ProgressPage(QtGui.QWidget):
     elif os.name == 'nt':
       subprocess.Popen(('start', url))
     elif os.name == 'posix':
-      return QtGui.QDesktopServices.openUrl(qurl)
-#      subprocess.Popen(('xdg-open', url))
+      QtGui.QDesktopServices.openUrl(qurl)
+      return
     elif type(qurl) == QtCore.QUrl:
-      return QtGui.QDesktopServices.openUrl(qurl)
-#    return webbrowser.open(url,new=1,autoraise=True)
+      QtGui.QDesktopServices.openUrl(qurl)
+      return
   
   def htmlLink(self,link,force=False):
     toReturn=""
@@ -168,11 +174,12 @@ class ProgressPage(QtGui.QWidget):
       return toReturn
   
   def singleLink(self,link,force=False):
-    if  (None != link and os.path.isfile(link)) \
-        or force == True:
-      toReturn="<a href=\""+os.path.abspath(link)+"\">"+link+"</a>"
-    elif None == link:
+    if None == link:
       toReturn = ""
+    elif  os.path.isfile(link):
+      toReturn="<a href=\""+os.path.abspath(link)+"\">"+link+"</a>"
+    elif link.find("http") or force == True:
+      toReturn="<a href=\""+link+"\">"+link+"</a>"
     else:
       toReturn=link
     return toReturn
@@ -420,7 +427,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           global LOG_FILENAME
           fileName=os.path.basename(LOG_FILENAME)
           self.results[url]["file"] = state["file"]
-          self.results[url]["state"] = "Download error. See <a href=\"" +LOG_FILENAME+ "\">"+fileName+"</a> for more information."
+          self.results[url]["state"] = "Download error. See <a href=\"" +LOG_FILENAME+ "\">"+LOG_FILENAME+"</a> for more information."
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "100%"
           downloadErrorCnt+=1
