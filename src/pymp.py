@@ -148,7 +148,6 @@ class ProgressPage(QtGui.QWidget):
       if  url.find("http") >= 0\
           or re.search(os.path.basename(LOG_FILENAME),url):
         QtGui.QDesktopServices.openUrl(qurl)
-        return
       else:
         subprocess.Popen(["osso-xterm -e \"%s %s\""%(self.settings["mplayer.path"],os.path.abspath(url))],shell=True)
     elif os.name == 'mac':
@@ -157,10 +156,8 @@ class ProgressPage(QtGui.QWidget):
       subprocess.Popen(('start', url))
     elif os.name == 'posix':
       QtGui.QDesktopServices.openUrl(qurl)
-      return
     elif type(qurl) == QtCore.QUrl:
       QtGui.QDesktopServices.openUrl(qurl)
-      return
   
   def htmlLink(self,link,force=False):
     toReturn=""
