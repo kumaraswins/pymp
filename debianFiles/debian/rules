@@ -59,11 +59,18 @@ install: build
 	# Add here commands to install the package into debian/pymp.
 	#$(MAKE) DESTDIR=$(CURDIR)/debian/pymp install
 	mkdir -p $(CURDIR)/debian/pymp
-	cp src/* $(CURDIR)/debian/pymp/opt/pymp
-	ln -s /opt/pymp/pymp.py $(CURDIR)/debian/pymp/usr/bin/pymp.py
+	cp -r src/* $(CURDIR)/debian/pymp/opt/pymp
+	ln -s $(CURDIR)/debian/pymp/opt/pymp/pymp.py $(CURDIR)/debian/pymp/usr/bin/pymp.py
 
 	#copy the menu file
-	cp data/pymp.desktop $(CURDIR)/debian/pymp/usr/share/applications/hildon
+	cp src/data/pymp.desktop $(CURDIR)/debian/pymp/usr/share/applications/hildon
+	#link icons
+	ln -s $(CURDIR)/debian/pymp/opt/pymp/data/icons/16x16/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/16x16/apps/pymp.png
+	ln -s $(CURDIR)/debian/pymp/opt/pymp/data/icons/26x26/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/26x26/apps/pymp.png
+	ln -s $(CURDIR)/debian/pymp/opt/pymp/data/icons/40x40/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/40x40/apps/pymp.png
+	ln -s $(CURDIR)/debian/pymp/opt/pymp/data/icons/48x48/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/48x48/apps/pymp.png
+	ln -s $(CURDIR)/debian/pymp/opt/pymp/data/icons/64x64/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/64x64/apps/pymp.png
+	ln -s $(CURDIR)/debian/pymp/opt/pymp/data/icons/scaleable/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/scaleable/apps/pymp.png
 	### copy readme and documentation files into /usr/share/yourfoldername if needed
 	# mkdir ­p $(CURDIR)/debian/pymp/usr/share/doc/pymp
 	# cp readme.txt $(CURDIR)/debian/usr/share/doc/pymp/readme.txt

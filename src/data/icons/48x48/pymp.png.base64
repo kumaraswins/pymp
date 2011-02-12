@@ -1,24 +1,4 @@
-Source: pymp
-Section: user/utilities
-Priority: extra
-Maintainer: Markus Scharnowski <markus.scharnowski@gmail.com>
-Build-Depends: debhelper (>= 5)
-Standards-Version: 3.7.2
-
-Package: pymp
-Homepage: http://sites.google.com/site/markusscharnowski/pc-software/pymp-youtube-downloader-and-mp3-converter
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Pymp - a python based youtube to mp3 converter and video downloader
- Pymp allows you to enter urls from youtube and other video hosting sites (google, yahoo...) and then dowlaod
- the videos from there and convert them to mp3 if desired.
-XB-Maemo-Display-Name: Pymp - a python based youtube to mp3 converter and video downloader
-XB-Description: Pymp - a python based youtube to mp3 converter and video downloader
- Pymp allows you to enter urls from youtube and other video hosting sites (google, yahoo...) and then dowlaod
- the videos from there and convert them to mp3 if desired.
-XB-Maemo-Upgrade-Description: Pymp - a python based youtube to mp3 converter and video downloader
-XSBC-Bugtracker: http://code.google.com/p/pymp/issues/list
-XB-Maemo-Icon-26:
+ begin-base64 644 pymp.png
  iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c
  6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0
  SU1FB9sCDAwzHRpMWhkAAAAdaVRYdENvbW1lbnQAAAAAAENyZWF0ZWQgd2l0
@@ -51,3 +31,4 @@ XB-Maemo-Icon-26:
  lC5I6iG5C8AwgPW25wCcSCktFHPtBvA4yREAI7bvTCk9WwUPYG2cTwEYJvmR
  7edSStdW9FWhrPx/w76bTafrIaMDtnf97z/zrPZnmho1atSoUaNGjRq3EX8B
  Ib8srbMjy0cAAAAASUVORK5CYII=
+ ====
