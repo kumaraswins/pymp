@@ -1,0 +1,4 @@
+
+rm -f /opt/pymp/data/linkIcons.sh
+
+exit 0

@@ -2,9 +2,9 @@
 Encoding=UTF-8
 Version=0.0.1
 Type=Application
-Name=Pymp
+Name=pymp
 Exec=/usr/bin/pymp.py
-Icon=push-it
+Icon=pymp
 X-Window-Icon=pymp
 X-Window-Icon-Dimmed=pymp
 #X-Osso-Service=com.nokia.pymp
