@@ -166,7 +166,11 @@ class InputPage(QtGui.QWidget):
   
   def retranslate(self):
     self.groupBoxInput.setTitle(QtGui.QApplication.translate("MainWindow","Download &list", None, QtGui.QApplication.UnicodeUTF8))
-    self.inputBrowser.setText(QtGui.QApplication.translate("MainWindow","# Insert the URLs to download here. Put each in a new line.\n", None, QtGui.QApplication.UnicodeUTF8))
+    self.inputBrowser.setText(QtGui.QApplication.translate(
+                                                           "MainWindow",
+                                                           "# Insert the URLs to download here. Put each in a new line.\n", 
+                                                           None, 
+                                                           QtGui.QApplication.UnicodeUTF8))
     return
 
 if __name__ == '__main__':

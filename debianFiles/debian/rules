@@ -64,8 +64,6 @@ install: build
 
 	#copy the menu file
 	cp src/data/pymp.desktop $(CURDIR)/debian/pymp/usr/share/applications/hildon
-	#link icons
-	/bin/sh ./src/data/linkIcons.sh
 	### copy readme and documentation files into /usr/share/yourfoldername if needed
 	# mkdir ­p $(CURDIR)/debian/pymp/usr/share/doc/pymp
 	# cp readme.txt $(CURDIR)/debian/usr/share/doc/pymp/readme.txt
