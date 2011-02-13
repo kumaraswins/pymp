@@ -462,7 +462,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
             if re.search(cfile,value["file"]):
               #Does the state need to be updated?
               if  value["state"] != "Converting" \
-                  and not pQueued.search(value["state"]):
+                  and not pQueued.search(state["state"]):
                 value["state"] = "Converting"
               
               value["stepProgress"] = state["state"]

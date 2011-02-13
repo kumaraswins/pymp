@@ -423,10 +423,10 @@ if __name__== '__main__':
     thread.setDaemon(True)
     thread.start()
 
-  ConvertWorker.queue.put("../test/Aladdin_intro_German-bJAyLYR71NM.flv")
+#  ConvertWorker.queue.put("../test/Aladdin_intro_German-bJAyLYR71NM.flv")
 #  ConvertWorker.queue.put("../test/Warum_bin_ich_so_fr_hlich-jrZHxIA0eVU.flvAaAStayInTehLight")
-  ConvertWorker.queue.put("../test/Gummib_renbande_Titelsong_Lyrics-O5sd_CuZxNc.flv")
-#  ConvertWorker.queue.put("../test/Speedy_Gonzales_Die_schnellste_Maus_von_Mexiko_german_Intro-lfEDO1uZxVA.flv")
+#  ConvertWorker.queue.put("../test/Gummib_renbande_Titelsong_Lyrics-O5sd_CuZxNc.flv")
+  ConvertWorker.queue.put("../test/Speedy_Gonzales_Die_schnellste_Maus_von_Mexiko_german_Intro-lfEDO1uZxVA.flv")
 #  ConvertWorker.queue.put("../test/Warum_bin_ich_so_fr_hlich-jrZHxIA0eVU.flv")
   time.sleep(0.1)
   cnt=1
