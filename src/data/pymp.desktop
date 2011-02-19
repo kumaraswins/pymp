@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.0.1
+Type=Application
+Name=pymp
+Exec=/usr/bin/pymp.py
+Icon=pymp
+X-Window-Icon=pymp
+X-Window-Icon-Dimmed=pymp
+#X-Osso-Service=com.nokia.pymp
+X-Osso-Type=application/x-executable
