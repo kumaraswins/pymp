@@ -1,3 +1,15 @@
+pymp (0.0.2-2) unstable; urgency=low
+
+  * Where are does icons?
+
+ -- unknown <markus.scharnowski@gmail.com>  Sun, 13 Feb 2011 19:02:32 +0100
+
+pymp (0.0.2-1) unstable; urgency=low
+
+  * Bugfix + new downloader
+
+ -- unknown <markus.scharnowski@gmail.com>  Sun, 13 Feb 2011 18:27:21 +0100
+
 pymp (0.0.1-5) unstable; urgency=low
 
   * one day - there will be icons
