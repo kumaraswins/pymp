@@ -142,7 +142,6 @@ class ConvertWorker(threading.Thread):
           self.executeSubprocess("lame")
         self.executeSubprocess("normalize")
       if not os.path.isfile(self.workingFile.last()):
-        self.workingFile[len(self.workingFile)-1] = ""
         self.updateResult("error")
       else:
         self.updateResult("done")

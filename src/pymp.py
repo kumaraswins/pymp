@@ -186,12 +186,15 @@ class ProgressPage(QtGui.QWidget):
     columnCnt=0
     for key,val in information.iteritems():
       columnCnt=0
+      #url
       if self.htmlLink(key, True) != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(self.htmlLink(key,True))
       columnCnt+=1
+      #step information
       if val["state"] != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(val["state"])
       columnCnt+=1
+      #file information
       if val.has_key("converted"):
         strn=val["converted"]+" "+val["file"]
       else:
@@ -200,6 +203,7 @@ class ProgressPage(QtGui.QWidget):
           and strn != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(self.htmlLink(strn))
       columnCnt+=1
+      #progress bar
       progress = val["totalProgress"]
       if type(val["totalProgress"]) is str:
         progress = progress.replace('%','')
@@ -305,6 +309,7 @@ class PreferencesDialog(Ui_PreferencesDialog):
 
 class Ui(QtGui.QMainWindow, Ui_MainWindow):
   def __init__(self):
+    global LOG_FILENAME
     QtGui.QMainWindow.__init__(self)
     #directory setup
     global LOG_PATH
@@ -394,35 +399,50 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     
     self.results = {}
     for url in self.downloadList:
-      if url not in DownloadWorker.result.keys():
+      if  os.path.isfile(os.path.abspath(url))\
+          and url not in ConvertWorker.result.keys():
+        ConvertWorker.addResult(url,"queued 0%",True)
+        self.results[url] = {"state": "Queued for converting",
+                             "file": url,
+                             "totalProgress": 50,
+                             "stepProgress": 0}
+      elif os.path.isdir(os.path.abspath(url)):
+        list = os.listdir(url)
+        for f in list:
+          if  os.path.isfile(f)\
+              and f not in ConvertWorker.result.keys():
+            logging.debug(f)
+            ConvertWorker.addResult(f,"queued 0%",True)
+            self.results[f] = {"state": "Queued for converting",
+                               "file": f,
+                               "totalProgress": 50,
+                               "stepProgress": 0}
+      elif url not in DownloadWorker.result.keys():
         if True == DownloadWorker.addResult(url,"queued 0%",True):
           self.results[url] = {"state": "Queued for downloading",
                                "file": "",
                                "totalProgress": 0,
                                "stepProgress": 0}
     
-    self.timer.start(200)
+    self.timer.start(300)
     self.updateActions()
     return
   
-  def updateActions(self):
+  def updateDownloaderStatus(self):
     pQueued=re.compile(r"queued",re.IGNORECASE)
-    downloadDoneCnt=0
     downloadCnt=0
+    downloadDoneCnt=0
     downloadErrorCnt=0
-    converterDoneCnt=0
-    converterCnt=0
-    logging.debug(" ")
     DownloadWorker.resultLock.acquire()
     for url,state in DownloadWorker.result.iteritems():
+      if os.path.isfile(os.path.abspath(url)):
+        continue
       downloadCnt+=1
       if  state["state"].find("done") >= 0\
           or state["state"].find("error") >= 0:
         downloadDoneCnt+=1
         if  type(state["file"]) == types.NoneType\
             or not os.path.isfile(state["file"]):
-          global LOG_FILENAME
-          fileName=os.path.basename(LOG_FILENAME)
           self.results[url]["file"] = state["file"]
           self.results[url]["state"] = "Download error. See <a href=\"" +LOG_FILENAME+ "\">"+LOG_FILENAME+"</a> for more information."
           self.results[url]["stepProgress"] = "100%"
@@ -439,7 +459,6 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           self.results[url]["state"] = "done"
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "100%"
-        self.progressPage.updateContent(self.results)
       else:
         if  self.results[url]["state"] != "Downloading" \
             and not pQueued.search(state["state"]):
@@ -452,39 +471,69 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
         total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/steps
         self.results[url]["totalProgress"] = "%.1lf%%" %(total)
     DownloadWorker.resultLock.release()
-    
+    return downloadCnt,downloadDoneCnt,downloadErrorCnt
+  
+  def updateConverterStatus(self):
+    pQueued=re.compile(r"queued",re.IGNORECASE)
+    converterDoneCnt = 0
+    converterCnt = 0
+    converterErrorCnt = 0
     if self.checkBoxMp3.isChecked():
       ConvertWorker.resultLock.acquire()
       for cfile,state in ConvertWorker.result.iteritems():
         converterCnt+=1
         for key,value in self.results.iteritems():
           try:
-            if re.search(cfile,value["file"]):
+            if re.match(cfile,value["file"]):
               #Does the state need to be updated?
-              if  value["state"] != "Converting" \
+              if  (value["state"] != "Converting" \
+                  or not value["state"].find("done")\
+                  or not value["state"].find("error"))\
                   and not pQueued.search(state["state"]):
                 value["state"] = "Converting"
               
               value["stepProgress"] = state["state"]
-              if  state["state"].find("done") >= 0 \
-                  or state["state"].find("error") >= 0:
+              if state["state"].find("done") >= 0:
                 value["state"] = state["state"]
                 converterDoneCnt+=1
                 total=100
                 value["converted"] = state["workingFile"]
-                self.progressPage.updateContent(self.results)
+              elif  state["state"].find("error") >= 0:
+                value["state"] = "Conversion error. See <a href=\"" +LOG_FILENAME+ "\">"+LOG_FILENAME+"</a> for more information."
+                converterDoneCnt+=1
+                converterErrorCnt+=1
+                total=100
+                value["converted"] = ""
               else:
                 total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/2+50
               value["totalProgress"] = "%.1lf%%" %(total)
           except TypeError:
             pass
       ConvertWorker.resultLock.release()
+    return converterCnt,converterDoneCnt,converterErrorCnt
+
+  
+  def updateActions(self):
+    downloadDoneCnt=0
+    downloadCnt=0
+    downloadErrorCnt=0
+    converterDoneCnt=0
+    converterCnt=0
+    converterErrorCnt=0
+    logging.debug(" ")
+    downloadCnt,downloadDoneCnt,downloadErrorCnt = self.updateDownloaderStatus()
+    converterCnt,converterDoneCnt,converterErrorCnt = self.updateConverterStatus()
     
     logging.debug(self.results)
-    logging.debug("%i %i %i %i %i"%(downloadCnt,downloadDoneCnt,downloadErrorCnt,converterCnt,converterDoneCnt))
-    downloadCnt = len(DownloadWorker.result)
-    converterCnt = len(ConvertWorker.result)
-    logging.debug("%i %i %i %i %i"%(downloadCnt,downloadDoneCnt,downloadErrorCnt,converterCnt,converterDoneCnt))
+    logging.debug("%i %i %i %i %i %i %i %i"
+                  %(len(DownloadWorker.result),
+                    downloadCnt,
+                    downloadDoneCnt,
+                    downloadErrorCnt,
+                    len(ConvertWorker.result),
+                    converterCnt,
+                    converterDoneCnt,
+                    converterErrorCnt))
     
     if None == self.progressPage:
       logging.debug("creating progressPage")
@@ -500,12 +549,16 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     else:
       self.progressPage.updateContent(self.results)
     
-    if downloadCnt == downloadDoneCnt and downloadCnt > 0:
+    if downloadCnt == downloadDoneCnt and downloadCnt > 0 and self.checkBoxFlash.isChecked():
       if self.checkBoxMp3.isChecked() and downloadDoneCnt > downloadErrorCnt:
         if converterCnt == converterDoneCnt and converterCnt > 0:
           self.uiAfterActions()
       else:
         self.uiAfterActions()
+    elif self.checkBoxMp3.isChecked() and not self.checkBoxFlash.isChecked(): #file actions
+      if converterCnt == converterDoneCnt and converterCnt > 0:
+        self.uiAfterActions()
+
     return
   
   def uiAfterActions(self):

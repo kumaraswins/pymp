@@ -122,7 +122,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow","pymp", None, QtGui.QApplication.UnicodeUTF8))
         self.checkBoxFlash.setText(QtGui.QApplication.translate("MainWindow", "Flash &video", None, QtGui.QApplication.UnicodeUTF8))
         self.checkBoxMp3.setText(QtGui.QApplication.translate("MainWindow", "&Mp3", None, QtGui.QApplication.UnicodeUTF8))
-        self.downloadButton.setText(QtGui.QApplication.translate("MainWindow", "&Download", None, QtGui.QApplication.UnicodeUTF8))
+        self.downloadButton.setText(QtGui.QApplication.translate("MainWindow", "S&tart", None, QtGui.QApplication.UnicodeUTF8))
         self.cancelButton.setText(QtGui.QApplication.translate("MainWindow", "&Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.menuHelp.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
@@ -162,6 +162,7 @@ class InputPage(QtGui.QWidget):
     self.inputLayout.addWidget(self.inputBrowser)
     
     self.retranslate()
+    self.inputBrowser.moveCursor(QtGui.QTextCursor.End)
     return
   
   def retranslate(self):

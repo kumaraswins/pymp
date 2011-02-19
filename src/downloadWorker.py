@@ -88,7 +88,10 @@ class DownloadWorker(threading.Thread):
       self.p=None
       #only for debugging
       self.tmpFile.seek(0)
-      logging.debug(self.tmpFile.read())
+      maybeErrors=self.tmpFile.read()
+      logging.debug(maybeErrors)
+      if re.search(r"ERROR:",maybeErrors):
+        logging.error(self.url+":"+maybeErrors)
       self.errFile.seek(0)
       errors=self.errFile.read()
       if errors != "":
