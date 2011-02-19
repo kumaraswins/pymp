@@ -165,8 +165,8 @@ class ConvertWorker(threading.Thread):
                                                      "stepState": state,
                                                      "workingFile": self.workingFile.last()
                                                      }
-      logging.debug(self.convertingFile)
-      logging.debug(self.result[self.convertingFile])
+      logging.log(3,self.convertingFile)
+      logging.log(3,self.result[self.convertingFile])
       ConvertWorker.resultLock.release()
       return
     except ValueError:
@@ -391,7 +391,7 @@ class ConvertWorker(threading.Thread):
     return
   
   def executeSubprocess(self,commandString):
-    logging.debug(commandString)
+    logging.log(3,commandString)
     if commandString in self.programList and self.isCommandAvailable(commandString):
       self.programList[commandString]["exec"]()
     else:

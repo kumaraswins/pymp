@@ -89,14 +89,14 @@ class DownloadWorker(threading.Thread):
       #only for debugging
       self.tmpFile.seek(0)
       maybeErrors=self.tmpFile.read()
-      logging.debug(maybeErrors)
+      logging.log(2,maybeErrors)
       if re.search(r"ERROR:",maybeErrors):
         logging.error(self.url+":"+maybeErrors)
       self.errFile.seek(0)
       errors=self.errFile.read()
       if errors != "":
         logging.error(self.url+": "+errors)
-      logging.debug(self.result[self.url])
+      logging.log(2,self.result[self.url])
     return
 
   def updateTargetFile(self):
@@ -110,11 +110,11 @@ class DownloadWorker(threading.Thread):
       for i in fileContent.split("\n"):
         if patternDownloading.search(i):
           self.targetFile = patternDownloading.findall(i)[0]
-          logging.debug(self.targetFile+" "+i)
+          logging.log(2,self.targetFile+" "+i)
           return
         if patternAlreadyDone.search(i):
           self.targetFile = patternAlreadyDone.findall(i)[0]
-          logging.debug(self.targetFile+" "+i)
+          logging.log(2,self.targetFile+" "+i)
           return
     return
     
@@ -138,7 +138,7 @@ class DownloadWorker(threading.Thread):
         if pattern.search(i):
           toReturn=pattern.findall(i)
           toReturn.reverse()
-          logging.debug(toReturn[0])
+          logging.log(2,toReturn[0])
           return toReturn[0]
     return "0%"
   

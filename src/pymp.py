@@ -208,7 +208,7 @@ class ProgressPage(QtGui.QWidget):
       if type(val["totalProgress"]) is str:
         progress = progress.replace('%','')
       progress = float(progress)
-      logging.debug(progress)
+      logging.debug("%i %s"%(progress,val["file"]))
       self.widgets[rowCnt][columnCnt].setValue(progress)
       columnCnt+=1
       rowCnt+=1
@@ -423,7 +423,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
                                "file": "",
                                "totalProgress": 0,
                                "stepProgress": 0}
-    
+    logging.debug(self.results)
     self.timer.start(300)
     self.updateActions()
     return
@@ -435,8 +435,6 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     downloadErrorCnt=0
     DownloadWorker.resultLock.acquire()
     for url,state in DownloadWorker.result.iteritems():
-      if os.path.isfile(os.path.abspath(url)):
-        continue
       downloadCnt+=1
       if  state["state"].find("done") >= 0\
           or state["state"].find("error") >= 0:
@@ -505,7 +503,13 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
                 total=100
                 value["converted"] = ""
               else:
-                total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/2+50
+                steps=1
+                offset=0
+                if  self.checkBoxFlash.isChecked() \
+                    or not os.path.isfile(os.path.abspath(key)):
+                  steps+=1
+                  offset=50
+                total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/steps+offset
               value["totalProgress"] = "%.1lf%%" %(total)
           except TypeError:
             pass
@@ -520,7 +524,6 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     converterDoneCnt=0
     converterCnt=0
     converterErrorCnt=0
-    logging.debug(" ")
     downloadCnt,downloadDoneCnt,downloadErrorCnt = self.updateDownloaderStatus()
     converterCnt,converterDoneCnt,converterErrorCnt = self.updateConverterStatus()
     
@@ -536,7 +539,6 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
                     converterErrorCnt))
     
     if None == self.progressPage:
-      logging.debug("creating progressPage")
       self.progressPage = ProgressPage(self.results,self.settings)
       self.pages.addWidget(self.progressPage)
       self.pages.setCurrentWidget(self.progressPage)
@@ -549,13 +551,14 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     else:
       self.progressPage.updateContent(self.results)
     
-    if downloadCnt == downloadDoneCnt and downloadCnt > 0 and self.checkBoxFlash.isChecked():
+    if downloadCnt == downloadDoneCnt and downloadCnt > 0:
       if self.checkBoxMp3.isChecked() and downloadDoneCnt > downloadErrorCnt:
         if converterCnt == converterDoneCnt and converterCnt > 0:
           self.uiAfterActions()
       else:
         self.uiAfterActions()
-    elif self.checkBoxMp3.isChecked() and not self.checkBoxFlash.isChecked(): #file actions
+    elif  self.checkBoxMp3.isChecked() \
+          and downloadCnt == 0: #file actions
       if converterCnt == converterDoneCnt and converterCnt > 0:
         self.uiAfterActions()
 
@@ -563,6 +566,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
   
   def uiAfterActions(self):
     self.timer.stop()
+    self.progressPage.updateContent(self.results)
     self.cancelButton.setText("&Done")
     if True == self.closeWhenFinished:
       self.close()
@@ -723,6 +727,7 @@ http://www.youtube.com/watch?v=O5sd_CuZxNcaa
                       level=options.debugLevel,
                       format = "%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt = "%F %H:%M:%S")
+  logging.info(options.debugLevel)
   logging.debug(PATH)
   logging.debug(LOG_PATH)
   app = QtGui.QApplication(sys.argv)
