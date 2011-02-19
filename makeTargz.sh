@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [[ $* -ne 1 ]]
+if [[ $# -ne 1 ]]
 then
   echo usage: `basename $0` VERSION
   exit 0
