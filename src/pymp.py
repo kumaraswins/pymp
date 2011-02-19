@@ -668,6 +668,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     textb.setText(LOG_FILENAME+"\n"+f.read())
     f.close
     textb.show()
+    dlg.resize(800, 480)
     dlg.exec_()
     return
     
