@@ -77,6 +77,8 @@ class Ui_MainWindow(object):
         #menu actions
         self.actionAbout = QtGui.QAction(MainWindow)
         self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
+        self.actionOpenLog = QtGui.QAction(MainWindow)
+        self.actionOpenLog.setObjectName(_fromUtf8("actionOpenLog"))
         self.actionLoadList = QtGui.QAction(MainWindow)
         self.actionLoadList.setObjectName(_fromUtf8("actionLoadList"))
         self.actionSaveList = QtGui.QAction(MainWindow)
@@ -100,6 +102,7 @@ class Ui_MainWindow(object):
         self.menuPreferences.setObjectName(_fromUtf8("menuPreferences"))
         #menu add actions
         self.menuHelp.addAction(self.actionAbout)
+        self.menuHelp.addAction(self.actionOpenLog)
         self.menuFile.addAction(self.actionLoadList)
         self.menuFile.addAction(self.actionSaveList)
         self.menuPreferences.addAction(self.actionPreferences)
@@ -128,6 +131,7 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "&File", None, QtGui.QApplication.UnicodeUTF8))
         self.menuPreferences.setTitle(QtGui.QApplication.translate("MainWindow", "&Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAbout.setText(QtGui.QApplication.translate("MainWindow", "&About", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionOpenLog.setText(QtGui.QApplication.translate("MainWindow", "&Open Logfile", None, QtGui.QApplication.UnicodeUTF8))
         self.actionLoadList.setText(QtGui.QApplication.translate("MainWindow", "&Load download list", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSaveList.setText(QtGui.QApplication.translate("MainWindow", "&Save download list", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExit.setText(QtGui.QApplication.translate("MainWindow", "&Exit", None, QtGui.QApplication.UnicodeUTF8))

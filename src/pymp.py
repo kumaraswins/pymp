@@ -348,6 +348,10 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.connect(self.cancelButton, 
                  QtCore.SIGNAL("clicked()"),
                  self.onCancel)
+    self.connect(self.actionOpenLog,
+                 QtCore.SIGNAL("triggered()"),
+                 self.onOpenLog)
+    
     self.pNumbers=re.compile(r"([0-9]*)")
     self.progressPage = None
     self.downloaders = None
@@ -577,13 +581,13 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     
   def cleanAfterDownload(self):
     logging.debug(" ")
-    self.timer.stop()
     for i in self.converters:
       i.killSubprocess()
     for i in self.downloaders:
       i.killSubprocess()
     DownloadWorker.queue.join()
     ConvertWorker.queue.join()
+    self.timer.stop()
     if not self.checkBoxFlash.isChecked():
       DownloadWorker.resultLock.acquire()
       for val in DownloadWorker.result.itervalues():
@@ -651,6 +655,19 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     dlg=AboutDialog(self.windowTitle(),
                "https://sites.google.com/site/markusscharnowski/pc-software/pymp-youtube-downloader-and-mp3-converter",
                "https://code.google.com/p/pymp/issues/list")
+    dlg.exec_()
+    return
+  
+  def onOpenLog(self):
+    dlg=QtGui.QDialog(self)
+    layout=QtGui.QHBoxLayout(dlg)
+    dlg.setLayout(layout)
+    textb=QtGui.QTextBrowser(dlg)
+    layout.addWidget(textb)
+    f=open(LOG_FILENAME,"r")
+    textb.setText(LOG_FILENAME+"\n"+f.read())
+    f.close
+    textb.show()
     dlg.exec_()
     return
     
