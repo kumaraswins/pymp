@@ -55,10 +55,14 @@ class DownloadWorker(threading.Thread):
       if keyword in self.settings.keys():
         self.options.append("-R")
         self.options.append(str(self.settings[keyword]))
-    if self.settings["download.continue"] == "True":
-      self.options.append("-c")
-    if self.settings["download.overwrite"] == "False":
-      self.options.append("-w")
+      keyword="download.continue"
+      if keyword in self.settings.keys():
+        if self.settings["download.continue"] == "True":
+          self.options.append("-c")
+      keyword="download.overwrite"
+      if keyword in self.settings.keys():
+        if self.settings["download.overwrite"] == "False":
+          self.options.append("-w")
       
     for i in self.options:
       logging.log(2,type(i).__name__+" "+i)
