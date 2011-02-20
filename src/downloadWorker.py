@@ -43,6 +43,7 @@ class DownloadWorker(threading.Thread):
     threading.Thread.__init__(self)
     self.p = None
     self.settings=settings
+    self.abortFlag = False
     return
   
   def readSettings(self):
@@ -66,6 +67,9 @@ class DownloadWorker(threading.Thread):
   def run(self):
     while True:
       self.url = DownloadWorker.queue.get()
+      if self.abortFlag:
+        DownloadWorker.queue.task_done()
+        continue
       DownloadWorker.addResult(self.url,"Downloading 0%")
       self.targetFile = None
       self.p = None
@@ -143,6 +147,7 @@ class DownloadWorker(threading.Thread):
     return "0%"
   
   def killSubprocess(self):
+    self.abortFlag = True
     if self.p != None:
       try:
         self.p.terminate()
@@ -158,6 +163,9 @@ class DownloadWorker(threading.Thread):
           subprocess.call(["kill","-9",str(self.p.pid)])
       self.p = None
     return
+  
+  def prepare(self):
+    self.abortFlag = False
 
 
 if __name__== '__main__':

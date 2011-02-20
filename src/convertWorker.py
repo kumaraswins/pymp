@@ -69,8 +69,8 @@ class ConvertWorker(threading.Thread):
     self.readSettings()
     self.currentRunning=None
     self.fnullName="/dev/null"
-    debugFlag = False
-    if True == debugFlag:
+    self.abortFlag = False
+    if logging.getLogger().getEffectiveLevel() <= 3:
       self.stdoutFake=sys.stdout
       self.stdinFake=open(self.fnullName,"r")
       self.stderrFake=sys.stderr
@@ -125,6 +125,9 @@ class ConvertWorker(threading.Thread):
   def run(self):
     while True:
       self.convertingFile = ConvertWorker.queue.get()
+      if self.abortFlag:
+        ConvertWorker.queue.task_done()
+        continue
       self.workingFile = MyList()
       self.workingFile.append(self.convertingFile)
       self.filesToDelete = []
@@ -141,10 +144,12 @@ class ConvertWorker(threading.Thread):
           self.executeSubprocess("sox")
           self.executeSubprocess("lame")
         self.executeSubprocess("normalize")
+      
       if not os.path.isfile(self.workingFile.last()):
         self.updateResult("error")
       else:
         self.updateResult("done")
+      ConvertWorker.queue.task_done()
       self.cleanUp()
     return
 
@@ -152,7 +157,6 @@ class ConvertWorker(threading.Thread):
     try:
       ConvertWorker.resultLock.acquire()
       if "done" == state or "error" == state:
-        ConvertWorker.queue.task_done()
         ConvertWorker.result[self.convertingFile] = {"state" : state, 
                                                      "step": self.currentRunning,
                                                      "stepState": state,
@@ -392,9 +396,11 @@ class ConvertWorker(threading.Thread):
   
   def executeSubprocess(self,commandString):
     logging.log(3,commandString)
-    if commandString in self.programList and self.isCommandAvailable(commandString):
+    if  commandString in self.programList \
+        and self.isCommandAvailable(commandString) \
+        and False == self.abortFlag:
       self.programList[commandString]["exec"]()
-    else:
+    elif False == self.abortFlag:
       logging.warning(commandString + " not available. Skipping that step.")
       self.currentRunning=None
     #no matter if something was done or not, we have progress - to reach the 100% someday
@@ -403,6 +409,7 @@ class ConvertWorker(threading.Thread):
     return
   
   def killSubprocess(self):
+    self.abortFlag = True
     if None != self.p:
       try:
         self.p.terminate()
@@ -418,6 +425,9 @@ class ConvertWorker(threading.Thread):
           subprocess.call(["kill","-9",str(self.p.pid)])
       self.p = None
     return
+  
+  def prepare(self):
+    self.abortFlag = False
 
 if __name__== '__main__':
   logging.basicConfig(

@@ -387,6 +387,8 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
         i.setDaemon(True)
         i.start()
     else:
+      for i in self.downloaders:
+        i.prepare()
       DownloadWorker.resultLock.acquire()
       DownloadWorker.result = {}
       DownloadWorker.resultLock.release()
@@ -397,6 +399,8 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
         i.setDaemon(True)
         i.start()
     else:
+      for i in self.converters:
+        i.prepare()
       ConvertWorker.resultLock.acquire()
       ConvertWorker.result = {}
       ConvertWorker.resultLock.release()
