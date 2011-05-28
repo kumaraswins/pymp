@@ -36,6 +36,7 @@ class Settings(dict):
                      "ffmpeg.path":"ffmpeg",
                      "sox.path":"sox",
                      "lame.path":"lame",
+                     "converter.kbps":"192",
                      "normalize.path":"normalize",
                      }
     return

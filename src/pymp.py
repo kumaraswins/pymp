@@ -252,6 +252,7 @@ class PreferencesDialog(Ui_PreferencesDialog):
       self.buttonDownloaderContinue.setChecked(True)
     if self.settings["download.overwrite"] == "True":
       self.buttonDownloaderOverwrite.setChecked(True)
+    self.spinConverterKbps.setValue(int(self.settings["converter.kbps"]))
     return
 
   def readSettings(self):
@@ -272,6 +273,7 @@ class PreferencesDialog(Ui_PreferencesDialog):
       self.settings["download.overwrite"] = "True"
     else:
       self.settings["download.overwrite"] = "False"
+    self.settings["converter.kbps"]=str(self.spinConverterKbps.value())
     self.saveSettings()
     self.close()
     return
@@ -365,7 +367,10 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
   
   def readSettings(self):
     self.settings.readFromFile()
-    os.chdir(self.settings["workingDirectory"])
+    try:
+      os.chdir(self.settings["workingDirectory"])
+    except:
+      pass #dont change the directory
     return
   
   def performActions(self):

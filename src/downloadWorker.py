@@ -102,6 +102,7 @@ class DownloadWorker(threading.Thread):
         logging.error(self.url+":"+maybeErrors)
       self.errFile.seek(0)
       errors=self.errFile.read()
+      
       if errors != "":
         logging.error(self.url+": "+errors)
       logging.log(2,self.result[self.url])

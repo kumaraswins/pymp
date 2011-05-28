@@ -104,17 +104,33 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     self.buttonDownloaderContinue.setText("Continue")
     self.buttonDownloaderContinue.setCheckable(True)
 
+    rowCount+=1
+    columnCount=0
+    self.labelConverterKbps=QtGui.QLabel(self)
+    self.labelConverterKbps.setText("Converter: kbps")
+    columnCount+=1
+    self.spinConverterKbps=QtGui.QSpinBox(self)
+    self.spinConverterKbps.setMinimum(4)
+    self.spinConverterKbps.setMaximum(512)
+
     #ordering of layout content
     rowCount=0
     columnCount=0
     self.gridLayout.addWidget(self.labelPath,rowCount,columnCount)
     columnCount+=1
     self.gridLayout.addWidget(self.buttonPathOfUser,rowCount,columnCount)
+
     rowCount+=1
     columnCount=0
     self.gridLayout.addWidget(self.labelConversions,rowCount,columnCount)
     columnCount+=1
     self.gridLayout.addWidget(self.spinConversions,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.gridLayout.addWidget(self.labelConverterKbps)
+    columnCount+=1
+    self.gridLayout.addWidget(self.spinConverterKbps)
+    
     rowCount+=1
     columnCount=0
     self.gridLayout.addWidget(self.labelDownloaderVersion,rowCount,columnCount)
@@ -170,6 +186,7 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     self.buttonCancel.setText(translate("&Cancel"))
     self.labelDownloaderContinue.setText(translate("Downloader: Continue partial downloaded files."))
     self.labelDownloaderOverwrite.setText(translate("Downloader: Overwrite exisiting files"))
+    self.labelConverterKbps.setText(translate("Converter: kbps"))
     self.buttonDownloaderContinue.setText(translate("Co&ntinue"))
     self.buttonDownloaderOverwrite.setText(translate("Over&write"))
     return

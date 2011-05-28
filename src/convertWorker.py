@@ -68,7 +68,7 @@ class ConvertWorker(threading.Thread):
                       }
     self.readSettings()
     self.currentRunning=None
-    self.fnullName="/dev/null"
+    self.fnullName=os.devnull
     self.abortFlag = False
     if logging.getLogger().getEffectiveLevel() <= 3:
       self.stdoutFake=sys.stdout
@@ -86,7 +86,7 @@ class ConvertWorker(threading.Thread):
     """
     Check for the binary that needs to be executed. Not OS independent :(
     """
-    sts=subprocess.call("type %s 1>/dev/null 2>/dev/null"%commandString,shell=True)
+    sts=subprocess.call("type %s 1>%s 2>%s"%(commandString,os.devnull,os.devnull),shell=True)
     if sts == 0:
       return True
     else:
@@ -277,7 +277,7 @@ class ConvertWorker(threading.Thread):
                                self.programList["ffmpeg"]["path"],
                                "-y",
                                "-ab",
-                               "128k",
+                               self.settings["converter.kbps"],
                                "-i",
                                self.convertingFile,
                                self.workingFile.last()
@@ -302,6 +302,8 @@ class ConvertWorker(threading.Thread):
     self.p=subprocess.Popen([
                              self.programList["lame"]["path"],
                              "-h",
+                             "-b",
+                             self.settings["converter.kbps"],
                              toConvert,
                              self.workingFile.last()
                              ],
