@@ -37,126 +37,131 @@ class Ui_PreferencesDialog(QtGui.QDialog):
 #    self.resize(800, 480)
     self.mainLayout=QtGui.QVBoxLayout()
     self.setLayout(self.mainLayout)
-    #the gridLayout
-    self.scrollArea=QtGui.QScrollArea(self)
-    self.gridWidget=QtGui.QWidget(self.scrollArea)
-    self.gridLayout=QtGui.QGridLayout(self.gridWidget)
-    self.gridWidget.setLayout(self.gridLayout)
     
-    rowCount=0
-    columnCount=0
+    #
+    #the grids
+    #
+    self.scrollAreaGeneral=QtGui.QScrollArea()
+    self.gridWidgetGeneral=QtGui.QWidget(self.scrollAreaGeneral)
+    self.gridLayoutGeneral=QtGui.QGridLayout(self.gridWidgetGeneral)
+    self.gridWidgetGeneral.setLayout(self.gridLayoutGeneral)
+    
+    self.scrollAreaDownloader=QtGui.QScrollArea()
+    self.gridWidgetDownloader=QtGui.QWidget(self.scrollAreaDownloader)
+    self.gridLayoutDownloader=QtGui.QGridLayout(self.gridWidgetDownloader)
+    self.gridWidgetDownloader.setLayout(self.gridLayoutDownloader)
+    
+    self.scrollAreaConverter=QtGui.QScrollArea()
+    self.gridWidgetConverter=QtGui.QWidget(self.scrollAreaConverter)
+    self.gridLayoutConverter=QtGui.QGridLayout(self.gridWidgetConverter)
+    self.gridWidgetConverter.setLayout(self.gridLayoutConverter)
+    
+    #
+    # the content of the several grids
+    #
+    
+    #general tab content
     self.labelPath=QtGui.QLabel(self)
     self.labelPath.setText("Working directory")
-    columnCount+=1
     self.buttonPathOfUser=QtGui.QPushButton(self)
     self.buttonPathOfUser.setText("~")
     
-    rowCount+=1
-    columnCount=0
     self.labelDownloads=QtGui.QLabel(self)
     self.labelDownloads.setText("Number of simultaneous downloads (needs transport bandwidth)")
-    columnCount+=1
     self.spinDownloads=QtGui.QSpinBox(self)
     self.spinDownloads.setMinimum(1)
     self.spinDownloads.setMaximum(999)
     
-    rowCount+=1
-    columnCount=0
     self.labelConversions=QtGui.QLabel(self)
     self.labelConversions.setText("Number of simultaneous conversions (needs computing power)")
-    columnCount+=1
     self.spinConversions=QtGui.QSpinBox(self)
     self.spinConversions.setMinimum(1)
     self.spinConversions.setMaximum(999)
     
-    rowCount+=1
-    columnCount=0
+    #downloader tab content
     self.labelDownloaderVersion=QtGui.QLabel(self)
     self.labelDownloaderVersion.setText("Downloader Version (click to update)")
-    columnCount+=1
     self.buttonDownloaderVersion=QtGui.QPushButton(self)
     self.buttonDownloaderVersion.setText("...")
     
-    rowCount+=1
-    columnCount=0
     self.labelRetry=QtGui.QLabel(self)
     self.labelRetry.setText("Number of download retries")
-    columnCount+=1
     self.spinRetry=QtGui.QSpinBox(self)
     self.spinRetry.setMinimum(0)
     self.spinRetry.setMaximum(99)
     
-    rowCount+=1
-    columnCount=0
     self.labelDownloaderOverwrite=QtGui.QLabel(self)
     self.labelDownloaderOverwrite.setText("Downloader: Overwrite exisiting files")
-    columnCount+=1
     self.buttonDownloaderOverwrite=QtGui.QPushButton(self)
     self.buttonDownloaderOverwrite.setText("Overwrite")
     self.buttonDownloaderOverwrite.setCheckable(True)
 
-    rowCount+=1
-    columnCount=0
     self.labelDownloaderContinue=QtGui.QLabel(self)
     self.labelDownloaderContinue.setText("Downloader: Continue partial downloaded files.")
-    columnCount+=1
     self.buttonDownloaderContinue=QtGui.QPushButton(self)
     self.buttonDownloaderContinue.setText("Continue")
     self.buttonDownloaderContinue.setCheckable(True)
 
-    rowCount+=1
-    columnCount=0
+    #converter tab contents
     self.labelConverterKbps=QtGui.QLabel(self)
     self.labelConverterKbps.setText("Converter: kbps")
-    columnCount+=1
     self.spinConverterKbps=QtGui.QSpinBox(self)
     self.spinConverterKbps.setMinimum(4)
     self.spinConverterKbps.setMaximum(512)
-
+    
+    #
     #ordering of layout content
+    #
+    
+    #general tab
     rowCount=0
     columnCount=0
-    self.gridLayout.addWidget(self.labelPath,rowCount,columnCount)
+    self.gridLayoutGeneral.addWidget(self.labelPath,rowCount,columnCount)
     columnCount+=1
-    self.gridLayout.addWidget(self.buttonPathOfUser,rowCount,columnCount)
+    self.gridLayoutGeneral.addWidget(self.buttonPathOfUser,rowCount,columnCount)
 
     rowCount+=1
     columnCount=0
-    self.gridLayout.addWidget(self.labelConversions,rowCount,columnCount)
+    self.gridLayoutGeneral.addWidget(self.labelDownloads,rowCount,columnCount)
     columnCount+=1
-    self.gridLayout.addWidget(self.spinConversions,rowCount,columnCount)
+    self.gridLayoutGeneral.addWidget(self.spinDownloads,rowCount,columnCount)
+
     rowCount+=1
     columnCount=0
-    self.gridLayout.addWidget(self.labelConverterKbps)
+    self.gridLayoutGeneral.addWidget(self.labelConversions,rowCount,columnCount)
     columnCount+=1
-    self.gridLayout.addWidget(self.spinConverterKbps)
+    self.gridLayoutGeneral.addWidget(self.spinConversions,rowCount,columnCount)
     
-    rowCount+=1
+    #converter tab
+    rowCount=0
     columnCount=0
-    self.gridLayout.addWidget(self.labelDownloaderVersion,rowCount,columnCount)
+    self.gridLayoutConverter.addWidget(self.labelConverterKbps,rowCount,columnCount)
     columnCount+=1
-    self.gridLayout.addWidget(self.buttonDownloaderVersion,rowCount,columnCount)
-    rowCount+=1
-    columnCount=0
-    self.gridLayout.addWidget(self.labelDownloads,rowCount,columnCount)
-    columnCount+=1
-    self.gridLayout.addWidget(self.spinDownloads,rowCount,columnCount)
-    rowCount+=1
-    columnCount=0
-    self.gridLayout.addWidget(self.labelRetry,rowCount,columnCount)
-    columnCount+=1
-    self.gridLayout.addWidget(self.spinRetry,rowCount,columnCount)
-    rowCount+=1
-    columnCount=0
-    self.gridLayout.addWidget(self.labelDownloaderOverwrite)
-    columnCount+=1
-    self.gridLayout.addWidget(self.buttonDownloaderOverwrite)
-    rowCount+=1
-    columnCount=0
-    self.gridLayout.addWidget(self.labelDownloaderContinue)
-    columnCount+=1
-    self.gridLayout.addWidget(self.buttonDownloaderContinue)
+    self.gridLayoutConverter.addWidget(self.spinConverterKbps,rowCount,columnCount)
     
+    #downloader tab
+    rowCount=0
+    columnCount=0
+    self.gridLayoutDownloader.addWidget(self.labelDownloaderVersion,rowCount,columnCount)
+    columnCount+=1
+    self.gridLayoutDownloader.addWidget(self.buttonDownloaderVersion,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.gridLayoutDownloader.addWidget(self.labelRetry,rowCount,columnCount)
+    columnCount+=1
+    self.gridLayoutDownloader.addWidget(self.spinRetry,rowCount,columnCount)
+    rowCount+=1
+    columnCount=0
+    self.gridLayoutDownloader.addWidget(self.labelDownloaderOverwrite)
+    columnCount+=1
+    self.gridLayoutDownloader.addWidget(self.buttonDownloaderOverwrite)
+    rowCount+=1
+    columnCount=0
+    self.gridLayoutDownloader.addWidget(self.labelDownloaderContinue)
+    columnCount+=1
+    self.gridLayoutDownloader.addWidget(self.buttonDownloaderContinue)
+    
+    #buttons
     self.buttonLayout=QtGui.QHBoxLayout()
     self.buttonLayout.addStretch()
 
@@ -167,10 +172,23 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     self.buttonCancel.setText("&Cancel")
     self.buttonLayout.addWidget(self.buttonCancel)
     
-    self.gridWidget.show()
-    self.scrollArea.setWidget(self.gridWidget)
-    self.scrollArea.setWidgetResizable(True)
-    self.mainLayout.addWidget(self.scrollArea)
+    self.gridWidgetGeneral.show()
+    self.gridWidgetConverter.show()
+    self.gridWidgetDownloader.show()
+    
+    self.scrollAreaGeneral.setWidget(self.gridWidgetGeneral)
+    self.scrollAreaGeneral.setWidgetResizable(True)
+    self.scrollAreaConverter.setWidget(self.gridWidgetConverter)
+    self.scrollAreaConverter.setWidgetResizable(True)
+    self.scrollAreaDownloader.setWidget(self.gridWidgetDownloader)
+    self.scrollAreaDownloader.setWidgetResizable(True)
+    
+    self.tabs=QtGui.QTabWidget(self)
+    self.tabs.addTab(self.scrollAreaGeneral,translate("&General"))
+    self.tabs.addTab(self.scrollAreaDownloader,translate("&Downloader"))
+    self.tabs.addTab(self.scrollAreaConverter,translate("&Converter"))
+    
+    self.mainLayout.addWidget(self.tabs)
     self.mainLayout.addLayout(self.buttonLayout)
     self.retranslate()
     return
@@ -184,9 +202,9 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     self.labelRetry.setText(translate("Number of download retries"))
     self.buttonOk.setText(translate("&Ok"))
     self.buttonCancel.setText(translate("&Cancel"))
-    self.labelDownloaderContinue.setText(translate("Downloader: Continue partial downloaded files."))
-    self.labelDownloaderOverwrite.setText(translate("Downloader: Overwrite exisiting files"))
-    self.labelConverterKbps.setText(translate("Converter: kbps"))
+    self.labelDownloaderContinue.setText(translate("Continue partial downloaded files."))
+    self.labelDownloaderOverwrite.setText(translate("Overwrite exisiting files"))
+    self.labelConverterKbps.setText(translate("Data rate (kbps)"))
     self.buttonDownloaderContinue.setText(translate("Co&ntinue"))
     self.buttonDownloaderOverwrite.setText(translate("Over&write"))
     return
