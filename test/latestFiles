@@ -1,0 +1,11 @@
+src/aboutdialog.py
+src/convertWorker.py
+src/downloadWorker.py
+src/maemoUtils.py
+src/preferencesDialog.py
+src/pymp.py
+src/qtUtils.py
+src/settings.py
+src/ui.py
+src/updater.py
+src/youtubeDownload.py
