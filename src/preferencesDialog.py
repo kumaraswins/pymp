@@ -19,6 +19,7 @@
 
 from PyQt4 import QtCore, QtGui
 from qtUtils import translate
+from maemoUtils import *
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -33,8 +34,10 @@ class Ui_PreferencesDialog(QtGui.QDialog):
 
   def setupUi(self):
     #prepare the window
-    self.setObjectName(_fromUtf8("PreferencesDialog"))
-#    self.resize(800, 480)
+    if isMaemo5():
+      self.resize(800,480)
+    else:
+      self.resize(600,250)
     self.mainLayout=QtGui.QVBoxLayout()
     self.setLayout(self.mainLayout)
     
@@ -61,50 +64,45 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     #
     
     #general tab content
+    self.labelVersion=QtGui.QLabel(self)
+    self.buttonVersion=QtGui.QPushButton(self)
+
     self.labelPath=QtGui.QLabel(self)
-    self.labelPath.setText("Working directory")
     self.buttonPathOfUser=QtGui.QPushButton(self)
     self.buttonPathOfUser.setText("~")
     
     self.labelDownloads=QtGui.QLabel(self)
-    self.labelDownloads.setText("Number of simultaneous downloads (needs transport bandwidth)")
     self.spinDownloads=QtGui.QSpinBox(self)
     self.spinDownloads.setMinimum(1)
     self.spinDownloads.setMaximum(999)
     
     self.labelConversions=QtGui.QLabel(self)
-    self.labelConversions.setText("Number of simultaneous conversions (needs computing power)")
     self.spinConversions=QtGui.QSpinBox(self)
     self.spinConversions.setMinimum(1)
     self.spinConversions.setMaximum(999)
     
     #downloader tab content
     self.labelDownloaderVersion=QtGui.QLabel(self)
-    self.labelDownloaderVersion.setText("Downloader Version (click to update)")
     self.buttonDownloaderVersion=QtGui.QPushButton(self)
     self.buttonDownloaderVersion.setText("...")
     
     self.labelRetry=QtGui.QLabel(self)
-    self.labelRetry.setText("Number of download retries")
     self.spinRetry=QtGui.QSpinBox(self)
     self.spinRetry.setMinimum(0)
     self.spinRetry.setMaximum(99)
     
     self.labelDownloaderOverwrite=QtGui.QLabel(self)
-    self.labelDownloaderOverwrite.setText("Downloader: Overwrite exisiting files")
     self.buttonDownloaderOverwrite=QtGui.QPushButton(self)
     self.buttonDownloaderOverwrite.setText("Overwrite")
     self.buttonDownloaderOverwrite.setCheckable(True)
 
     self.labelDownloaderContinue=QtGui.QLabel(self)
-    self.labelDownloaderContinue.setText("Downloader: Continue partial downloaded files.")
     self.buttonDownloaderContinue=QtGui.QPushButton(self)
     self.buttonDownloaderContinue.setText("Continue")
     self.buttonDownloaderContinue.setCheckable(True)
 
     #converter tab contents
     self.labelConverterKbps=QtGui.QLabel(self)
-    self.labelConverterKbps.setText("Converter: kbps")
     self.spinConverterKbps=QtGui.QSpinBox(self)
     self.spinConverterKbps.setMinimum(4)
     self.spinConverterKbps.setMaximum(512)
@@ -115,6 +113,11 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     
     #general tab
     rowCount=0
+    columnCount=0
+    self.gridLayoutGeneral.addWidget(self.labelVersion,rowCount,columnCount)
+    columnCount+=1
+    self.gridLayoutGeneral.addWidget(self.buttonVersion,rowCount,columnCount)
+    rowCount+=1
     columnCount=0
     self.gridLayoutGeneral.addWidget(self.labelPath,rowCount,columnCount)
     columnCount+=1
@@ -186,7 +189,7 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     self.tabs=QtGui.QTabWidget(self)
     self.tabs.addTab(self.scrollAreaGeneral,translate("&General"))
     self.tabs.addTab(self.scrollAreaDownloader,translate("&Downloader"))
-    self.tabs.addTab(self.scrollAreaConverter,translate("&Converter"))
+    self.tabs.addTab(self.scrollAreaConverter,translate("Con&verter"))
     
     self.mainLayout.addWidget(self.tabs)
     self.mainLayout.addLayout(self.buttonLayout)
@@ -194,6 +197,9 @@ class Ui_PreferencesDialog(QtGui.QDialog):
     return
     
   def retranslate(self):
+    self.setObjectName(translate("PreferencesDialog"))
+    self.labelVersion.setText(translate("Version (click to update)"))
+    self.buttonVersion.setText(translate(""))
     self.labelPath.setText(translate("Working directory"))
     self.buttonPathOfUser.setText(translate("~"))
     self.labelDownloads.setText(translate("Number of simultaneous downloads (needs transport bandwidth)"))

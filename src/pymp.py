@@ -331,6 +331,12 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.connect(self.actionAbout, 
                  QtCore.SIGNAL("triggered()"),
                  self.onAbout)
+    self.connect(self.actionAddFile,
+                 QtCore.SIGNAL("triggered()"),
+                 self.onAddFile)
+    self.connect(self.actionAddDirectory,
+                 QtCore.SIGNAL("triggered()"),
+                 self.onAddDirectory)
     self.connect(self.actionLoadList,
                  QtCore.SIGNAL("triggered()"),
                  self.onLoadList)
@@ -641,6 +647,18 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
       self.performActions()
     return
   
+  def onAddFile(self):
+    toAdd=QtGui.QFileDialog.getOpenFileNames(parent=self,
+                                             caption=translate("Select file(s)"))
+    self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText()+"\n"+toAdd.join("\n"))
+    return
+
+  def onAddDirectory(self):
+    toAdd=QtGui.QFileDialog.getExistingDirectory(parent=self,
+                                                 caption=translate("Select directory"))
+    self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText()+"\n"+toAdd)
+    return
+
   def onLoadList(self):
     listFile=QtGui.QFileDialog.getOpenFileName(parent=self,
                                                caption=translate("Select download list"))

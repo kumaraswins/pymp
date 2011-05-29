@@ -19,6 +19,7 @@
 
 from PyQt4 import QtCore, QtGui
 from qtUtils import *
+from maemoUtils import *
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -34,8 +35,11 @@ class Ui_AboutDialog(object):
   def setupUi(self, Dialog):
     #prepare the window
     Dialog.setObjectName(_fromUtf8("Dialog"))
-    Dialog.resize(800, 480)
-
+    if isMaemo5():
+      Dialog.resize(800, 480)
+    else:
+      Dialog.resize(600, 400)
+      
     #the layout
     self.layout=QtGui.QVBoxLayout(Dialog)
     self.setLayout(self.layout)
