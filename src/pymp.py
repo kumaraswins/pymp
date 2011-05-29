@@ -651,12 +651,14 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     toAdd=QtGui.QFileDialog.getOpenFileNames(parent=self,
                                              caption=translate("Select file(s)"))
     self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText()+"\n"+toAdd.join("\n"))
+    self.checkBoxMp3.setChecked(True)
     return
 
   def onAddDirectory(self):
     toAdd=QtGui.QFileDialog.getExistingDirectory(parent=self,
                                                  caption=translate("Select directory"))
     self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText()+"\n"+toAdd)
+    self.checkBoxMp3.setChecked(True)
     return
 
   def onLoadList(self):

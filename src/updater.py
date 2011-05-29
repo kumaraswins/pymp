@@ -31,22 +31,36 @@ class Updater():
     return
   
   def checkVersion(self):
-    ver = urllib.urlopen(self.versionUrl).read().strip()
-    if ver.find("404"):
+    ver = urllib.urlopen(self.versionUrl).read().strip().upper()
+    if ver.find("404 NOT FOUND") >= 0:
+      logging.error(self.versionUrl)
       logging.error(ver)
       raise(ValueError)
-    self.files = urllib.urlopen(self.filesUrl).read().strip()
-    if ver.find("404"):
+    self.files = urllib.urlopen(self.filesUrl).read().strip().upper()
+    if self.files.find("404 NOT FOUND") >= 0:
+      logging.error(self.filesUrl)
       logging.error(self.files)
       raise(ValueError)
+    logging.log(4,ver)
+    logging.log(4,self.files)
     return ver
   
   def isUpdateRequired(self):
-    return (self.version != self.checkVersion())
+    result = (self.version != self.checkVersion())
+    logging.log(4,result)
+    return result
   
   def update(self):
     if self.isUpdateRequired():
-      logging.log(4,"")
+      for i in self.files.strip().split("\n"):
+        files=i.split(" ")
+        if len(files) != 2:
+          raise(ValueError)
+        self.updateFile(files[0],files[1])
+    return
+  
+  def updateFile(self,fileSource,fileTarget):
+    logging.log(4,fileSource,fileTarget)
     return
   
 if __name__== '__main__':
@@ -57,7 +71,7 @@ if __name__== '__main__':
                       level=4,
                       format = "%(asctime)s %(levelname)s %(process)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt = "%F %H:%M:%S")
-  u = Updater("2011-05-29",
+  u = Updater("2011-05-28",
               "http://pymp.googlecode.com/hg/test/",
               "latestVersion",
               "latestFiles")

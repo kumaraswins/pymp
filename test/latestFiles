@@ -1,11 +1,20 @@
-src/aboutdialog.py
-src/convertWorker.py
-src/downloadWorker.py
-src/maemoUtils.py
-src/preferencesDialog.py
-src/pymp.py
-src/qtUtils.py
-src/settings.py
-src/ui.py
-src/updater.py
-src/youtubeDownload.py
+src/pymp.py pymp.py
+src/updater.py updater.py
+src/aboutdialog.py aboutdialog.py
+src/convertWorker.py convertWorker.py
+src/data/icons/16x16/pymp.png data/icons/16x16/pymp.png
+src/data/icons/26x26/pymp.png data/icons/26x26/pymp.png
+src/data/icons/40x40/pymp.png data/icons/40x40/pymp.png
+src/data/icons/48x48/pymp.png data/icons/48x48/pymp.png
+src/data/icons/48x48/pymp.png.base64 data/icons/48x48/pymp.png.base64
+src/data/icons/64x64/pymp.png data/icons/64x64/pymp.png
+src/data/icons/scalable/pymp.png data/icons/scalable/pymp.png
+src/data/linkIcons.sh data/linkIcons.sh
+src/data/pymp.desktop data/pymp.desktop
+src/downloadWorker.py downloadWorker.py
+src/maemoUtils.py maemoUtils.py
+src/preferencesDialog.py preferencesDialog.py
+src/qtUtils.py qtUtils.py
+src/settings.py settings.py
+src/ui.py ui.py
+src/youtubeDownload.py youtubeDownload.py
