@@ -11,6 +11,7 @@ def findFilesInPath(path):
   return fileList
 
 def findFilesInPathButNotInList(path,list):
+  logging.log(4,"")
   filesInPath=findFilesInPath(path)
   logging.log(4,"\n".join(filesInPath))
   filesNotInPath=[]
@@ -19,10 +20,17 @@ def findFilesInPathButNotInList(path,list):
       i=list.index(file)
     except:
       filesNotInPath.append(file)
+  logging.log(4,"\n".join(filesNotInPath))
   return filesNotInPath
 
 if __name__ == "__main__":
   import sys
+  logging.basicConfig(
+                      filename=os.path.basename(__file__)+".log",
+                      filemode="w",
+                      level=4,
+                      format = "%(asctime)s %(levelname)s %(process)s %(module)s %(funcName)s %(lineno)s: %(message)s",
+                      datefmt = "%F %H:%M:%S")
   filesInstalled=[]
   for i in open("../latestFiles","r").read().split("\n"):
     if len(i) >= 2:
