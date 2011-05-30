@@ -1,5 +1,3 @@
-src/pymp.py pymp.py
-src/updater.py updater.py
 src/aboutdialog.py aboutdialog.py
 src/convertWorker.py convertWorker.py
 src/data/icons/16x16/pymp.png data/icons/16x16/pymp.png
@@ -14,7 +12,10 @@ src/data/pymp.desktop data/pymp.desktop
 src/downloadWorker.py downloadWorker.py
 src/maemoUtils.py maemoUtils.py
 src/preferencesDialog.py preferencesDialog.py
+src/pymp.py pymp.py
 src/qtUtils.py qtUtils.py
 src/settings.py settings.py
 src/ui.py ui.py
+src/updater.py updater.py
+src/utils.py utils.py
 src/youtubeDownload.py youtubeDownload.py
