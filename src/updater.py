@@ -17,13 +17,17 @@
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
 import logging,urllib,os
+from utils import *
 
 class Updater():
-  def __init__(self,version,baseUrl,versionFile,filesFile):
+  def __init__(self,path,version,baseUrl,versionFile,filesFile):
     self.version = version
     self.versionUrl = baseUrl+versionFile
     self.filesUrl = baseUrl+filesFile
     self.baseUrl = baseUrl
+    self.installationPath = path+"/"
+    
+    logging.log(4,self.installationPath)
     logging.log(4,self.version)
     logging.log(4,self.baseUrl)
     logging.log(4,self.versionUrl)
@@ -36,13 +40,12 @@ class Updater():
       logging.error(self.versionUrl)
       logging.error(ver)
       raise(ValueError)
-    self.files = urllib.urlopen(self.filesUrl).read().strip().upper()
-    if self.files.find("404 NOT FOUND") >= 0:
+    self.files = urllib.urlopen(self.filesUrl).read().strip()
+    if self.files.find("404 Not Found") >= 0:
       logging.error(self.filesUrl)
       logging.error(self.files)
       raise(ValueError)
     logging.log(4,ver)
-    logging.log(4,self.files)
     return ver
   
   def isUpdateRequired(self):
@@ -52,16 +55,36 @@ class Updater():
   
   def update(self):
     if self.isUpdateRequired():
+      installedFiles=[]
       for i in self.files.strip().split("\n"):
         files=i.split(" ")
         if len(files) != 2:
           raise(ValueError)
+        installedFiles.append(files[1])
         self.updateFile(files[0],files[1])
+        self.removeNotInstalledFiles(installedFiles)
+      return True
+    return False
+  
+  def removeNotInstalledFiles(self,installedFiles):
+    filesToDelete=findFilesInPathButNotInList(os.path.dirname(__file__))
+    for i in filesToDelete:
+      os.remove(i)
     return
   
   def updateFile(self,fileSource,fileTarget):
-    logging.log(4,fileSource,fileTarget)
+    fileSource=self.baseUrl+fileSource+"?r="+self.version
+    fileTarget=self.installationPath+fileTarget
+    logging.log(4,fileSource)
+    logging.log(4,fileTarget)
+    newcontent = urllib.urlopen(fileSource).read()
+    stream = open(fileTarget,"w")
+    stream.write(newcontent)
+    stream.close()
     return
+  
+  def getVersion(self):
+    return self.version
   
 if __name__== '__main__':
   import sys
@@ -71,8 +94,9 @@ if __name__== '__main__':
                       level=4,
                       format = "%(asctime)s %(levelname)s %(process)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt = "%F %H:%M:%S")
-  u = Updater("2011-05-28",
-              "http://pymp.googlecode.com/hg/test/",
+  u = Updater(os.path.realpath(sys.argv[0]),
+              "2011-05-28",
+              "http://pymp.googlecode.com/hg/",
               "latestVersion",
               "latestFiles")
   u.update()

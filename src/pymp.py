@@ -26,6 +26,7 @@ from downloadWorker import DownloadWorker
 from convertWorker import ConvertWorker
 from preferencesDialog import Ui_PreferencesDialog
 from settings import Settings
+from updater import Updater
 
 class ProgressPage(QtGui.QWidget):
   def __init__(self,information,settings):
@@ -214,16 +215,18 @@ class ProgressPage(QtGui.QWidget):
       rowCnt+=1
   
 class AboutDialog(QtGui.QDialog, Ui_AboutDialog):
-  def __init__(self,name,url,bugs):
+  def __init__(self,name,version,url,bugs):
     self.name=name
     self.url=url
     self.bugtracker=bugs
+    self.version=version
     QtGui.QDialog.__init__(self) 
     self.setupUi(self)
     
 class PreferencesDialog(Ui_PreferencesDialog):
-  def __init__(self,settings):
+  def __init__(self,settings,updater):
     Ui_PreferencesDialog.__init__(self)
+    self.updater = updater
     self.setWindowTitle(translate("Preferences"))
     self.settings=settings
     self.readSettings()
@@ -239,12 +242,16 @@ class PreferencesDialog(Ui_PreferencesDialog):
     self.connect(self.buttonDownloaderVersion,
                  QtCore.SIGNAL("clicked()"),
                  self.updateDownloader)
+    self.connect(self.buttonVersion,
+                 QtCore.SIGNAL("clicked()"),
+                 self.updateVersion)
     self.updateContent()
     return
   
   def updateContent(self):
     self.updateDirectoryButton()
     self.updateVersionButton()
+    self.updateDownloaderVersionButton()
     self.spinDownloads.setValue(int(self.settings["numberOfSimultaniousDownloads"]))
     self.spinConversions.setValue(int(self.settings["numberOfSimultaniousConversions"]))
     self.spinRetry.setValue(int(self.settings["download.numberOfRetries"]))
@@ -296,9 +303,9 @@ class PreferencesDialog(Ui_PreferencesDialog):
     sts=subprocess.call([self.settings["download.downloader.path"],"-U"],
                         stderr=self.errFile,
                         stdout=self.tmpFile)
-    self.updateVersionButton()
+    self.updateDownloaderVersionButton()
     
-  def updateVersionButton(self):
+  def updateDownloaderVersionButton(self):
     self.tmpFile = tempfile.TemporaryFile()
     self.errFile = tempfile.TemporaryFile()
     sts=subprocess.call([self.settings["download.downloader.path"],"-v"],
@@ -308,6 +315,37 @@ class PreferencesDialog(Ui_PreferencesDialog):
     version=self.tmpFile.read().rstrip()
     logging.debug(version)
     self.buttonDownloaderVersion.setText(version)
+    return
+  
+  def updateVersionButton(self):
+    self.buttonVersion.setText(self.updater.getVersion())
+    return
+  
+  def updateVersion(self):
+    try:
+      rc=self.updater.update()
+      if True == rc:
+        dialog=QtGui.QMessageBox(self)
+        infoStr="Please restart"
+        dialog.setWindowTitle(infoStr)
+        dialog.setText("The changes will only take effect after a restart of the program")
+        dialog.exec_()
+      else:
+        dialog=QtGui.QMessageBox(self)
+        infoStr="No operation"
+        dialog.setWindowTitle(infoStr)
+        dialog.setText("There is no newer version.")
+        dialog.exec_()
+    except:
+        dialog=QtGui.QMessageBox(self)
+        infoStr="Error during update"
+        dialog.setWindowTitle(infoStr)
+        dialog.setText(
+                       "An error occured during the update process. Please try again or check %s for details"
+                       %(LOG_FILENAME)
+                       )
+        dialog.exec_()
+    return
 
 class Ui(QtGui.QMainWindow, Ui_MainWindow):
   def __init__(self):
@@ -322,6 +360,12 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.readSettings()
     self.timer = QtCore.QTimer()
     self.setupUi(self)
+    self.updater = Updater(PATH,
+                           "2011-05-30",
+                           "http://pymp.googlecode.com/hg/",
+                           "latestVersion",
+                           "latestFiles"
+                           )
     
     #signals and slot stuff
     self.connect(self.timer,
@@ -681,9 +725,12 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     f.close()
   
   def onAbout(self):
-    dlg=AboutDialog(self.windowTitle(),
-               "https://sites.google.com/site/markusscharnowski/pc-software/pymp-youtube-downloader-and-mp3-converter",
-               "https://code.google.com/p/pymp/issues/list")
+    dlg=AboutDialog(
+                    self.windowTitle(),
+                    self.updater.version,
+                    "https://sites.google.com/site/markusscharnowski/pc-software/pymp-youtube-downloader-and-mp3-converter",
+                    "https://code.google.com/p/pymp/issues/list"
+                    )
     dlg.exec_()
     return
   
@@ -702,7 +749,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     return
     
   def onPreferences(self):
-    dlg=PreferencesDialog(self.settings)
+    dlg=PreferencesDialog(self.settings,self.updater)
     dlg.exec_()
     self.readSettings()
     return
@@ -763,11 +810,11 @@ http://www.youtube.com/watch?v=O5sd_CuZxNc
 http://www.youtube.com/watch?v=O5sd_CuZxNcaa
   """
   #logger
-  LOG_PATH=os.path.expanduser("~/."+os.path.basename(__file__))
-  PATH=os.path.dirname(os.path.realpath(__file__))
+  LOG_PATH=os.path.expanduser("~/."+os.path.basename(sys.argv[0]))
+  PATH=os.path.dirname(os.path.realpath(sys.argv[0]))
   if not os.path.exists(LOG_PATH):
     os.mkdir(LOG_PATH)
-  LOG_FILENAME=LOG_PATH+"/"+os.path.basename(__file__)+".log"
+  LOG_FILENAME=LOG_PATH+"/"+os.path.basename(sys.argv[0])+".log"
   logging.basicConfig(
                       filename=LOG_FILENAME,
                       filemode="w",
@@ -775,8 +822,8 @@ http://www.youtube.com/watch?v=O5sd_CuZxNcaa
                       format = "%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt = "%F %H:%M:%S")
   logging.info(options.debugLevel)
-  logging.debug(PATH)
-  logging.debug(LOG_PATH)
+  logging.info(PATH)
+  logging.info(LOG_PATH)
   app = QtGui.QApplication(sys.argv)
   ui = Ui() 
   ui.show()

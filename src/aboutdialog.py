@@ -27,8 +27,9 @@ except AttributeError:
     _fromUtf8 = lambda s: s
 
 class Ui_AboutDialog(object):
-  def __init__(self,name,url,bugs):
+  def __init__(self,name,version,url,bugs):
     self.name=name
+    self.version=version
     self.url=url
     self.bugtracker=bugs
   
@@ -128,7 +129,7 @@ class Ui_AboutDialog(object):
         " &body=Hello Markus,\">Feedback</a></p>"
         ))
     self.browserGeneral.setText(translate(
-        "<p>" + self.name + "</p>"\
+        "<p>" + self.name + " " + self.version + "</p>"\
 #        "<p>Test <a href=\"file:////home/markus/workspace/eclipse/python/pymp/test/Aladdin_intro_German-bJAyLYR71NM.flv\">test.flv</a></p>"\
 #        "<p>Test <a href=\"file:////home/markus/workspace/eclipse/python/pymp/test/Aladdin_intro_German-bJAyLYR71NM.flv.mp3\">test.flv.mp3</a></p>"\
 #        "<p>Test <a href=\"x\">test</a></p>"\
