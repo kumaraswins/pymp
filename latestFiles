@@ -3,8 +3,8 @@ src/convertWorker.py convertWorker.py
 src/data/icons/16x16/pymp.png data/icons/16x16/pymp.png
 src/data/icons/26x26/pymp.png data/icons/26x26/pymp.png
 src/data/icons/40x40/pymp.png data/icons/40x40/pymp.png
-src/data/icons/48x48/pymp.png data/icons/48x48/pymp.png
 src/data/icons/48x48/pymp.png.base64 data/icons/48x48/pymp.png.base64
+src/data/icons/48x48/pymp.png data/icons/48x48/pymp.png
 src/data/icons/64x64/pymp.png data/icons/64x64/pymp.png
 src/data/icons/scalable/pymp.png data/icons/scalable/pymp.png
 src/data/linkIcons.sh data/linkIcons.sh
