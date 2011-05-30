@@ -11,16 +11,13 @@ def findFilesInPath(path):
   return fileList
 
 def findFilesInPathButNotInList(path,list):
-  logging.log(4,"")
   filesInPath=findFilesInPath(path)
-  logging.log(4,"\n".join(filesInPath))
   filesNotInPath=[]
   for file in filesInPath:
     try:
       i=list.index(file)
     except:
       filesNotInPath.append(file)
-  logging.log(4,"\n".join(filesNotInPath))
   return filesNotInPath
 
 if __name__ == "__main__":

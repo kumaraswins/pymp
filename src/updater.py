@@ -62,7 +62,7 @@ class Updater():
         files=i.split(" ")
         if len(files) != 2:
           continue
-        installedFiles.append(files[1])
+        installedFiles.append(self.installationPath+files[1])
         self.updateFile(version,files[0],files[1])
       self.removeNotInstalledFiles(installedFiles)
       return True
@@ -70,7 +70,7 @@ class Updater():
   
   def removeNotInstalledFiles(self,installedFiles):
     logging.log(4,"")
-    filesToDelete=findFilesInPathButNotInList(os.path.dirname(__file__))
+    filesToDelete=findFilesInPathButNotInList(os.path.dirname(__file__),installedFiles)
     logging.log(4,"")
     for i in filesToDelete:
       logging.log(4,"Removing "+ i)
