@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
+import os,logging
 
 def findFilesInPath(path):
   fileList=[]
@@ -12,6 +12,7 @@ def findFilesInPath(path):
 
 def findFilesInPathButNotInList(path,list):
   filesInPath=findFilesInPath(path)
+  logging.log(4,"\n".join(filesInPath))
   filesNotInPath=[]
   for file in filesInPath:
     try:

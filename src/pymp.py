@@ -361,7 +361,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.timer = QtCore.QTimer()
     self.setupUi(self)
     self.updater = Updater(PATH,
-                           "2011-05-30",
+                           "2011-05-30-16h10",
                            "http://pymp.googlecode.com/hg/",
                            "latestVersion",
                            "latestFiles"

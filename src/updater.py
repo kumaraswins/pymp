@@ -35,8 +35,8 @@ class Updater():
     return
   
   def checkVersion(self):
-    ver = urllib.urlopen(self.versionUrl).read().strip().upper()
-    if ver.find("404 NOT FOUND") >= 0:
+    ver = urllib.urlopen(self.versionUrl).read().strip()
+    if ver.find("404 Not Found") >= 0:
       logging.error(self.versionUrl)
       logging.error(ver)
       raise(ValueError)
@@ -49,39 +49,51 @@ class Updater():
     return ver
   
   def isUpdateRequired(self):
-    result = (self.version < self.checkVersion())
+    version = self.checkVersion()
+    result = (self.version < version)
     logging.log(4,result)
-    return result
+    return result,version
   
   def update(self):
-    if self.isUpdateRequired():
+    check,version = self.isUpdateRequired()
+    if check:
       installedFiles=[]
       for i in self.files.strip().split("\n"):
         files=i.split(" ")
         if len(files) != 2:
-          raise(ValueError)
+          continue
         installedFiles.append(files[1])
-        self.updateFile(files[0],files[1])
-        self.removeNotInstalledFiles(installedFiles)
+        self.updateFile(version,files[0],files[1])
+      self.removeNotInstalledFiles(installedFiles)
       return True
     return False
   
   def removeNotInstalledFiles(self,installedFiles):
+    logging.log(4,"")
     filesToDelete=findFilesInPathButNotInList(os.path.dirname(__file__))
+    logging.log(4,"")
     for i in filesToDelete:
       logging.log(4,"Removing "+ i)
       os.remove(i)
+    logging.log(4,"")
     return
   
-  def updateFile(self,fileSource,fileTarget):
-    fileSource=self.baseUrl+fileSource+"?r="+self.version
+  def updateFile(self,version,fileSource,fileTarget):
+    fileSource=self.baseUrl+fileSource+"?r="+version
     fileTarget=self.installationPath+fileTarget
     logging.log(4,fileSource)
     logging.log(4,fileTarget)
-    newcontent = urllib.urlopen(fileSource).read()
-    stream = open(fileTarget,"w")
-    stream.write(newcontent)
-    stream.close()
+    try:
+      newcontent = urllib.urlopen(fileSource).read()
+    except:
+      logging.error("Unable to download "+fileSource)
+    try:
+      stream = open(fileTarget,"w")
+      stream.write(newcontent)
+      stream.close()
+    except:
+      logging.error("Unable to write "+ fileTarget)
+    logging.log(4,"Wrote "+fileTarget)
     return
   
   def getVersion(self):
