@@ -49,7 +49,7 @@ class Updater():
     return ver
   
   def isUpdateRequired(self):
-    result = (self.version != self.checkVersion())
+    result = (self.version < self.checkVersion())
     logging.log(4,result)
     return result
   
@@ -69,6 +69,7 @@ class Updater():
   def removeNotInstalledFiles(self,installedFiles):
     filesToDelete=findFilesInPathButNotInList(os.path.dirname(__file__))
     for i in filesToDelete:
+      logging.log(4,"Removing "+ i)
       os.remove(i)
     return
   
