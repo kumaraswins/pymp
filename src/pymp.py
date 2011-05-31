@@ -25,8 +25,8 @@ from maemoUtils import *
 from downloadWorker import DownloadWorker
 from convertWorker import ConvertWorker
 from preferencesDialog import Ui_PreferencesDialog
-from settings import Settings
-from updater import Updater
+from settings import *
+from updater import *
 
 class ProgressPage(QtGui.QWidget):
   def __init__(self,information,settings):
@@ -318,33 +318,20 @@ class PreferencesDialog(Ui_PreferencesDialog):
     return
   
   def updateVersionButton(self):
-    self.buttonVersion.setText(self.updater.getVersion())
+    self.buttonVersion.setText("&"+self.updater.version)
     return
   
   def updateVersion(self):
-    try:
-      rc=self.updater.update()
-      if True == rc:
-        dialog=QtGui.QMessageBox(self)
-        infoStr="Please restart"
-        dialog.setWindowTitle(infoStr)
-        dialog.setText("The changes will only take effect after a restart of the program")
-        dialog.exec_()
-      else:
-        dialog=QtGui.QMessageBox(self)
-        infoStr="No operation"
-        dialog.setWindowTitle(infoStr)
-        dialog.setText("There is no newer version.")
-        dialog.exec_()
-    except:
-        dialog=QtGui.QMessageBox(self)
-        infoStr="Error during update"
-        dialog.setWindowTitle(infoStr)
-        dialog.setText(
-                       "An error occured during the update process. Please try again or check %s for details"
-                       %(LOG_FILENAME)
-                       )
-        dialog.exec_()
+    self.hide()
+    rc=self.updater.exec_()
+    if "success" == rc:
+      self.buttonVersion.setEnabled(False)
+    self.show()
+    return
+  
+  def show(self):
+    self.readSettings()
+    QtGui.QDialog.show(self)
     return
 
 class Ui(QtGui.QMainWindow, Ui_MainWindow):
@@ -362,10 +349,11 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.setupUi(self)
     self.updater = Updater(
                            PATH,
-                           "2011-05-30-17h47",
+                           "2011-05-30-17h46",
                            "http://pymp.googlecode.com/hg/",
                            "latestVersion",
-                           "latestFiles"
+                           "latestFiles",
+                           LOG_FILENAME
                            )
     
     #signals and slot stuff
@@ -410,6 +398,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.downloaders = None
     self.converters = None
     self.closeWhenFinished = False
+    self.preferencesDialog = PreferencesDialog(self.settings,self.updater)
     return
   
   def __del__(self):
@@ -625,7 +614,6 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           and downloadCnt == 0: #file actions
       if converterCnt == converterDoneCnt and converterCnt > 0:
         self.uiAfterActions()
-
     return
   
   def uiAfterActions(self):
@@ -750,8 +738,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     return
     
   def onPreferences(self):
-    dlg=PreferencesDialog(self.settings,self.updater)
-    dlg.exec_()
+    self.preferencesDialog.exec_()
     self.readSettings()
     return
 
