@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
-import logging,urllib,os,shutil,threading,time
+import logging,urllib,os,shutil,threading,time,inspect
 from PyQt4 import QtGui, QtCore
 from qtUtils import *
 from utils import *
@@ -38,6 +38,8 @@ class Updater(QtGui.QDialog):
   def setupUi(self):
     self.mainLayout=QtGui.QVBoxLayout(self)
     self.bar = QtGui.QProgressBar(self)
+    self.bar.setMinimum(0)
+    self.bar.setMaximum(999)
     self.cancelButton = QtGui.QPushButton(self)
     self.mainLayout.addWidget(self.bar)
     self.mainLayout.addWidget(self.cancelButton)
@@ -59,23 +61,23 @@ class Updater(QtGui.QDialog):
     self.cancelButton.setText(translate("&Cancel"))
     return
   
-  def update(self):
-    self.show()
-    self.timer.start(10)
-    return
-  
   def updateActions(self):
-    if 0 >= self.bar.minimum():
-      self.bar.setMinimum(self.updaterWorker.min)
-    if 0 >= self.bar.maximum():
+    if 999 == self.bar.maximum() and self.updaterWorker.running == "yes":
       self.bar.setMaximum(self.updaterWorker.max)
-    logging.log(4,"")
+      logging.log(4,self.updaterWorker.max)
+    
     self.bar.setValue(self.updaterWorker.cnt)
-    logging.log(4,"")
-    if self.updaterWorker.max == self.updaterWorker.cnt:
+    
+    if self.updaterWorker.max == self.updaterWorker.cnt \
+    and self.updaterWorker.running != "not started":
       self.updateDone()
       return False
-    logging.log(4,"")
+    elif self.updaterWorker.running != "not started"\
+    and self.updaterWorker.result != "not started":
+      self.updateDone()
+      self.res = "error " + str(inspect.currentframe().f_lineno)
+      return False
+    
     return True
   
   def updateDone(self):
@@ -88,6 +90,7 @@ class Updater(QtGui.QDialog):
     return
     
   def onCancel(self):
+    logging.log(4,"")
     self.updaterWorker.stop()
     self.updateDone()
     self.bar.setValue(0)
@@ -96,20 +99,28 @@ class Updater(QtGui.QDialog):
   
   def exec_(self):
     self.show()
+    self.updaterWorker.trigger()
     self.updaterWorker.start()
     self.timer.start(100)
     QtGui.QDialog.exec_(self)
+    self.updaterWorker.join()
+    logging.log(4,self.res)
     if "canceled" == self.res:
       pass
     elif "success" == self.res:
-      pass
-    elif "failure" == self.res:
-      pass
+      dialog=QtGui.QMessageBox(self)
+      dialog.setWindowTitle("Finished")
+      dialog.setText("Restarting the program is required to finish the update.")
+      dialog.exec_()
+    elif "failed" == self.res:
+      dialog=QtGui.QMessageBox(self)
+      dialog.setWindowTitle("Failed")
+      dialog.setText("The update process failed. See " + self.logFileName + " for further information.")
+      dialog.exec_()
     return self.res
   
 class UpdaterWorker(threading.Thread):
   def __init__(self,path,version,baseUrl,versionFile,filesFile):
-    threading.Thread.__init__(self)
     self.abortFlag = False
     self.version = version
     self.versionUrl = baseUrl+versionFile
@@ -118,9 +129,10 @@ class UpdaterWorker(threading.Thread):
     self.installationPath = path+"/"
     self.cnt = 0
     self.min = 0
-    self.max = 1
-    self.result = False
-    self.running = False
+    self.max = 0
+    self.result = "not started"
+    self.running = "not started"
+    self.installedFiles=[]
     logging.log(4,self.installationPath)
     logging.log(4,self.version)
     logging.log(4,self.baseUrl)
@@ -152,25 +164,36 @@ class UpdaterWorker(threading.Thread):
     return result,version
   
   def run(self):
-    return self.update()
-    
+    rc = self.update()
+    return rc
+  
+  def trigger(self):
+    threading.Thread.__init__(self)
+    self.cnt = 0
+    self.min = 0
+    self.max = 0
+    self.result = "not started"
+    self.running = "not started"
+    self.installedFiles=[]
+    return
+
   def update(self):
     logging.log(4,"")
-    self.running = True
     check,version = self.isUpdateRequired()
     if check:
       self.min = 0
       self.max = len(self.files.split("\n"))*3
       self.cnt=0
-      installedFiles=[]
+      self.running = "yes"
       updateContent={}
       for i in self.files.split("\n"):
         files=i.split(" ")
         file=self.installationPath+files[1]
+        #store all currently installed files so they don't get deleted by removeNotInstalledFiles()
+        self.installedFiles.append(file)
         if not os.access(file, os.W_OK):
           logging.error("No write permissions for "+file)
           raise OS.IOError
-      logging.log(4,"")
       #create backups
       for i in self.files.split("\n"):
         if not self.abortFlag:
@@ -178,16 +201,20 @@ class UpdaterWorker(threading.Thread):
           shutil.copy2(self.installationPath+files[1],self.installationPath+files[1]+".backup")
           self.cnt+=1
       #get files from the internet
-      logging.log(4,"")
-      for i in self.files.split("\n"):
-        if not self.abortFlag:
-          files=i.split(" ")
-          newContent=self.getFile(version,files[0])
-          updateContent[files[0]]=[files[1],newContent]
-          self.cnt+=1
-        
+      try:
+        for i in self.files.split("\n"):
+          if not self.abortFlag:
+            files=i.split(" ")
+            newContent=self.getFile(version,files[0])
+            updateContent[files[0]]=[files[1],newContent]
+            self.cnt+=1
+      except:
+        logging.error("Unable to download")
+        self.restore()
+        self.result("failed")
+        self.running("no")
+        raise
       #write new files
-      logging.log(4,"")
       for val in updateContent.itervalues():
         if not self.abortFlag:
           try:
@@ -195,32 +222,37 @@ class UpdaterWorker(threading.Thread):
             stream = open(targetFile,"w")
             stream.write(val[1])
             stream.close()
-            installedFiles.append(targetFile)
             self.cnt+=1
           except:
             logging.error("Unable to write "+ targetFile)
             #restore backups
             self.restore()
-            self.result = False
-            self.running = False
+            self.result = "failed"
+            self.running = "no"
             return False
-      logging.log(4,"")
+      #store all new installed files so they don't get deleted by removeNotInstalledFiles()
+      if not self.abortFlag:
+        for val in updateContent.itervalues():
+          targetFile = self.installationPath+val[0]
+          self.installedFiles.append(targetFile)
+          
       if self.abortFlag:
         self.restore()
-      self.removeNotInstalledFiles(installedFiles)
-      self.result = True
-      self.running = False
+        
+      self.removeNotInstalledFiles(self.installedFiles)
+      self.result = "success"
+      self.running = "no"
       return True
     logging.log(4,"")
-    self.result = False
-    self.running = False
+    self.result = "success"
+    self.running = "no"
     return False
   
   def restore(self):
     for i in self.files.split("\n"):
       files=i.split(" ")
-      shutil.copy2(files[1]+".backup",files[1])
-    self.removeNotInstalledFiles(installedFiles)
+      shutil.copy2(self.installationPath+files[1]+".backup",self.installationPath+files[1])
+    self.removeNotInstalledFiles(self.installedFiles)
     return
   
   def removeNotInstalledFiles(self,installedFiles):
