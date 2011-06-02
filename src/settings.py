@@ -44,10 +44,8 @@ class Settings(dict):
   def readFromFile(self):
     self.clear()
     pattern=re.compile(r"(.*?)(#.*|$)")
-    logging.log(1,"")
     try:
       fileObject=open(self.settingsFile,"r")
-      logging.log(1,"")
       for line in fileObject:
         logging.log(1,line)
         if pattern.match(line):

@@ -24,14 +24,15 @@ from utils import *
 class Updater(QtGui.QDialog):
   def __init__(self,path,version,baseUrl,versionFile,filesFile,logFileName):
     QtGui.QDialog.__init__(self)
-    self.updaterWorker = UpdaterWorker(path,version,baseUrl,versionFile,filesFile)
     self.version = version
+    self.versionFile = versionFile
     self.versionUrl = baseUrl+versionFile
+    self.filesFile = filesFile
     self.filesUrl = baseUrl+filesFile
     self.baseUrl = baseUrl
     self.installationPath = path+"/"
     self.logFileName = logFileName
-    self.res = "failure"
+    self.res = "failed"
     self.setupUi()
     return
   
@@ -81,7 +82,6 @@ class Updater(QtGui.QDialog):
     return True
   
   def updateDone(self):
-    logging.log(4,"")
     self.bar.setValue(self.bar.maximum())
     self.timer.stop()
     self.hide()
@@ -90,43 +90,52 @@ class Updater(QtGui.QDialog):
     return
     
   def onCancel(self):
-    logging.log(4,"")
+    self.timer.stop()
     self.updaterWorker.stop()
     self.updateDone()
     self.bar.setValue(0)
     self.res="canceled"
+    logging.debug("Update canceled")
     return
   
   def exec_(self):
     self.show()
-    self.updaterWorker.trigger()
-    self.updaterWorker.start()
-    self.timer.start(100)
-    QtGui.QDialog.exec_(self)
-    self.updaterWorker.join()
-    logging.log(4,self.res)
+    try:
+      self.updaterWorker = UpdaterWorker(self.installationPath,self.version,self.baseUrl,self.versionFile,self.filesFile)
+      self.updaterWorker.start()
+      self.timer.start(100)
+      QtGui.QDialog.exec_(self)
+      self.updaterResult = self.updaterWorker.result
+      self.updaterWorker.join()
+      del self.updaterWorker
+    except:
+      raise
     if "canceled" == self.res:
       pass
-    elif "success" == self.res:
+    elif "success" == self.res \
+    and "success" == self.updaterResult:
       dialog=QtGui.QMessageBox(self)
       dialog.setWindowTitle("Finished")
       dialog.setText("Restarting the program is required to finish the update.")
       dialog.exec_()
-    elif "failed" == self.res:
+    elif "failed" == self.res \
+    or "failed" == self.updaterResult:
       dialog=QtGui.QMessageBox(self)
       dialog.setWindowTitle("Failed")
       dialog.setText("The update process failed. See " + self.logFileName + " for further information.")
       dialog.exec_()
+    logging.info(self.res)
     return self.res
   
 class UpdaterWorker(threading.Thread):
   def __init__(self,path,version,baseUrl,versionFile,filesFile):
+    threading.Thread.__init__(self)
     self.abortFlag = False
     self.version = version
     self.versionUrl = baseUrl+versionFile
     self.filesUrl = baseUrl+filesFile
     self.baseUrl = baseUrl
-    self.installationPath = path+"/"
+    self.installationPath = path
     self.cnt = 0
     self.min = 0
     self.max = 0
@@ -141,16 +150,28 @@ class UpdaterWorker(threading.Thread):
     return
   
   def checkVersion(self):
-    ver = urllib.urlopen(self.versionUrl).read().strip()
+    try:
+      ver = urllib.urlopen(self.versionUrl).read().strip()
+    except (IOError, OSError), err:
+      logging.error("Unable to access "+self.versionUrl)
+      self.result = "failed"
+      return
     if ver.find("404 Not Found") >= 0:
       logging.error(self.versionUrl)
       logging.error(ver)
-      raise(ValueError)
-    self.files = urllib.urlopen(self.filesUrl).read().strip()
+      self.result = "failed"
+      return
+    try:
+      self.files = urllib.urlopen(self.filesUrl).read().strip()
+    except (IOError, OSError), err:
+      logging.error("Unable to access "+self.filesUrl)
+      self.result = "failed"
+      return
     if self.files.find("404 Not Found") >= 0:
       logging.error(self.filesUrl)
       logging.error(self.files)
-      raise(ValueError)
+      self.result = "failed"
+      return
     #be really sure that there are no empty lines
     self.files = os.linesep.join([s for s in self.files.splitlines() if s])
     self.files = os.linesep.join([s for s in self.files.splitlines() if 2 == len(s.split(" "))])
@@ -158,29 +179,22 @@ class UpdaterWorker(threading.Thread):
     return ver
   
   def isUpdateRequired(self):
-    version = self.checkVersion()
-    result = (self.version < version)
-    logging.info(result)
+    try:
+      version = self.checkVersion()
+      result = (self.version < version)
+      logging.info(result)
+    except:
+      raise
     return result,version
   
   def run(self):
     rc = self.update()
     return rc
   
-  def trigger(self):
-    threading.Thread.__init__(self)
-    self.cnt = 0
-    self.min = 0
-    self.max = 0
-    self.result = "not started"
-    self.running = "not started"
-    self.installedFiles=[]
-    return
-
   def update(self):
-    logging.log(4,"")
     check,version = self.isUpdateRequired()
     if check:
+      logging.info("Updating to "+version)
       self.min = 0
       self.max = len(self.files.split("\n"))*3
       self.cnt=0
@@ -193,7 +207,8 @@ class UpdaterWorker(threading.Thread):
         self.installedFiles.append(file)
         if not os.access(file, os.W_OK):
           logging.error("No write permissions for "+file)
-          raise OS.IOError
+          self.result = "failed"
+          self.abortFlag = True
       #create backups
       for i in self.files.split("\n"):
         if not self.abortFlag:
@@ -208,44 +223,44 @@ class UpdaterWorker(threading.Thread):
             newContent=self.getFile(version,files[0])
             updateContent[files[0]]=[files[1],newContent]
             self.cnt+=1
+        #write new files
+        for val in updateContent.itervalues():
+          if not self.abortFlag:
+            try:
+              targetFile = self.installationPath+val[0]
+              stream = open(targetFile,"w")
+              stream.write(val[1])
+              stream.close()
+              self.cnt+=1
+            except:
+              logging.error("Unable to write "+ targetFile)
+              #restore backups
+              self.restore()
+              self.result = "failed"
+              self.running = "no"
+              self.abortFlag = True
+        #store all new installed files so they don't get deleted by removeNotInstalledFiles()
+        if not self.abortFlag:
+          for val in updateContent.itervalues():
+            targetFile = self.installationPath+val[0]
+            self.installedFiles.append(targetFile)
       except:
         logging.error("Unable to download")
         self.restore()
         self.result("failed")
         self.running("no")
-        raise
-      #write new files
-      for val in updateContent.itervalues():
-        if not self.abortFlag:
-          try:
-            targetFile = self.installationPath+val[0]
-            stream = open(targetFile,"w")
-            stream.write(val[1])
-            stream.close()
-            self.cnt+=1
-          except:
-            logging.error("Unable to write "+ targetFile)
-            #restore backups
-            self.restore()
-            self.result = "failed"
-            self.running = "no"
-            return False
-      #store all new installed files so they don't get deleted by removeNotInstalledFiles()
-      if not self.abortFlag:
-        for val in updateContent.itervalues():
-          targetFile = self.installationPath+val[0]
-          self.installedFiles.append(targetFile)
-          
+        self.abortFlag = True
+      
       if self.abortFlag:
         self.restore()
         
       self.removeNotInstalledFiles(self.installedFiles)
       self.result = "success"
       self.running = "no"
-      return True
-    logging.log(4,"")
-    self.result = "success"
+    if "not started" == self.result:
+      self.result = "success"
     self.running = "no"
+    logging.debug(self.result)
     return False
   
   def restore(self):
@@ -256,13 +271,10 @@ class UpdaterWorker(threading.Thread):
     return
   
   def removeNotInstalledFiles(self,installedFiles):
-    logging.log(4,"")
     filesToDelete=findFilesInPathButNotInList(os.path.dirname(__file__),installedFiles)
-    logging.log(4,"")
     for i in filesToDelete:
       logging.log(4,"Removing "+ i)
       os.remove(i)
-    logging.log(4,"")
     return
   
   def getFile(self,version,fileSource):
@@ -272,9 +284,11 @@ class UpdaterWorker(threading.Thread):
       newContent = urllib.urlopen(fileSource).read()
       logging.log(4,"Got "+fileSource)
       return newContent
-    except:
+    except(IOError, OSError), err:
       logging.error("Unable to download "+fileSource)
-      raise
+      self.abortFlag = True
+      self.result = "failed"
+      return
     return None
   
   def getVersion(self):
