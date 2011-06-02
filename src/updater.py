@@ -100,16 +100,14 @@ class Updater(QtGui.QDialog):
   
   def exec_(self):
     self.show()
-    try:
-      self.updaterWorker = UpdaterWorker(self.installationPath,self.version,self.baseUrl,self.versionFile,self.filesFile)
-      self.updaterWorker.start()
-      self.timer.start(100)
-      QtGui.QDialog.exec_(self)
-      self.updaterResult = self.updaterWorker.result
-      self.updaterWorker.join()
-      del self.updaterWorker
-    except:
-      raise
+    self.updaterWorker = UpdaterWorker(self.installationPath,self.version,self.baseUrl,self.versionFile,self.filesFile)
+    self.updaterWorker.start()
+    self.timer.start(100)
+    QtGui.QDialog.exec_(self)
+    self.updaterResult = self.updaterWorker.result
+    self.updaterWorker.join()
+    del self.updaterWorker
+    self.hide()
     if "canceled" == self.res:
       pass
     elif "success" == self.res \
@@ -118,8 +116,8 @@ class Updater(QtGui.QDialog):
       dialog.setWindowTitle("Finished")
       dialog.setText("Restarting the program is required to finish the update.")
       dialog.exec_()
-    elif "failed" == self.res \
-    or "failed" == self.updaterResult:
+    elif self.res.find("failed") >= 0 \
+    or self.updaterResult.find("failed") >= 0:
       dialog=QtGui.QMessageBox(self)
       dialog.setWindowTitle("Failed")
       dialog.setText("The update process failed. See " + self.logFileName + " for further information.")
@@ -209,7 +207,7 @@ class UpdaterWorker(threading.Thread):
         self.installedFiles.append(file)
         if not os.access(file, os.W_OK):
           logging.error("No write permissions for "+file)
-          self.result = "failed"
+          self.result = "failed permissions"
           self.abortFlag = True
       #create backups
       for i in self.files.split("\n"):
@@ -218,47 +216,38 @@ class UpdaterWorker(threading.Thread):
           shutil.copy2(self.installationPath+files[1],self.installationPath+files[1]+".backup")
           self.cnt+=1
       #get files from the internet
-      try:
-        for i in self.files.split("\n"):
-          if not self.abortFlag:
-            files=i.split(" ")
-            newContent=self.getFile(version,files[0])
-            updateContent[files[0]]=[files[1],newContent]
-            self.cnt+=1
-        #write new files
-        for val in updateContent.itervalues():
-          if not self.abortFlag:
-            try:
-              targetFile = self.installationPath+val[0]
-              stream = open(targetFile,"w")
-              stream.write(val[1])
-              stream.close()
-              self.cnt+=1
-            except:
-              logging.error("Unable to write "+ targetFile)
-              #restore backups
-              self.restore()
-              self.result = "failed"
-              self.running = "no"
-              self.abortFlag = True
-        #store all new installed files so they don't get deleted by removeNotInstalledFiles()
+      for i in self.files.split("\n"):
         if not self.abortFlag:
-          for val in updateContent.itervalues():
+          files=i.split(" ")
+          newContent=self.getFile(version,files[0])
+          updateContent[files[0]]=[files[1],newContent]
+          self.cnt+=1
+      #write new files
+      for val in updateContent.itervalues():
+        if not self.abortFlag:
+          try:
             targetFile = self.installationPath+val[0]
-            self.installedFiles.append(targetFile)
-      except:
-        logging.error("Unable to download")
+            stream = open(targetFile,"w")
+            stream.write(val[1])
+            stream.close()
+            self.cnt+=1
+            logging.log(4,"Wrote "+targetFile)
+          except(IOError, OSError), err:
+            logging.error("Unable to write "+ targetFile)
+            #restore backups
+            self.restore()
+            self.result = "failed"
+            self.running = "no"
+            self.abortFlag = True
+      #store all new installed files so they don't get deleted by removeNotInstalledFiles()
+      if not self.abortFlag:
+        for val in updateContent.itervalues():
+          targetFile = self.installationPath+val[0]
+          self.installedFiles.append(targetFile)
+      else:
         self.restore()
-        self.result("failed")
-        self.running("no")
-        self.abortFlag = True
-      
-      if self.abortFlag:
-        self.restore()
-        
       self.removeNotInstalledFiles(self.installedFiles)
-      self.result = "success"
-      self.running = "no"
+      
     if "not started" == self.result:
       self.result = "success"
     self.running = "no"
@@ -268,7 +257,9 @@ class UpdaterWorker(threading.Thread):
   def restore(self):
     for i in self.files.split("\n"):
       files=i.split(" ")
-      shutil.copy2(self.installationPath+files[1]+".backup",self.installationPath+files[1])
+      backupFile=self.installationPath+files[1]+".backup"
+      if os.path.isfile(backupFile):
+        shutil.copy2(backupFile,self.installationPath+files[1])
     self.removeNotInstalledFiles(self.installedFiles)
     return
   
@@ -284,7 +275,7 @@ class UpdaterWorker(threading.Thread):
     logging.log(4,fileSource)
     newContent = self.openUrl(fileSource)
     logging.log(4,"Got "+fileSource)
-    return None
+    return newContent
   
   def getVersion(self):
     return self.version
