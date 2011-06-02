@@ -809,7 +809,7 @@ http://www.youtube.com/watch?v=O5sd_CuZxNcaa
                       level=options.debugLevel,
                       format = "%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt = "%F %H:%M:%S")
-  logging.info(options.debugLevel)
+  logging.info("log level " + str(options.debugLevel))
   logging.info(PATH)
   logging.info(LOG_PATH)
   app = QtGui.QApplication(sys.argv)

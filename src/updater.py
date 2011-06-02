@@ -124,6 +124,7 @@ class Updater(QtGui.QDialog):
       dialog.setWindowTitle("Failed")
       dialog.setText("The update process failed. See " + self.logFileName + " for further information.")
       dialog.exec_()
+      self.res="failed"
     logging.info(self.res)
     return self.res
   
@@ -149,24 +150,25 @@ class UpdaterWorker(threading.Thread):
     logging.log(4,self.filesUrl)
     return
   
-  def checkVersion(self):
+  def openUrl(self,url):
+    content=""
     try:
-      ver = urllib.urlopen(self.versionUrl).read().strip()
+      content = urllib.urlopen(url).read().strip()
     except (IOError, OSError), err:
-      logging.error("Unable to access "+self.versionUrl)
+      logging.error("Unable to access "+url)
       self.result = "failed"
-      return
+      self.abortFlag = True
+    return content
+  
+  def checkVersion(self):
+    ver = self.openUrl(self.versionUrl)
     if ver.find("404 Not Found") >= 0:
       logging.error(self.versionUrl)
       logging.error(ver)
       self.result = "failed"
+      self.abortFlag = True
       return
-    try:
-      self.files = urllib.urlopen(self.filesUrl).read().strip()
-    except (IOError, OSError), err:
-      logging.error("Unable to access "+self.filesUrl)
-      self.result = "failed"
-      return
+    self.files = self.openUrl(self.filesUrl)
     if self.files.find("404 Not Found") >= 0:
       logging.error(self.filesUrl)
       logging.error(self.files)
@@ -280,15 +282,8 @@ class UpdaterWorker(threading.Thread):
   def getFile(self,version,fileSource):
     fileSource=self.baseUrl+fileSource+"?r="+version
     logging.log(4,fileSource)
-    try:
-      newContent = urllib.urlopen(fileSource).read()
-      logging.log(4,"Got "+fileSource)
-      return newContent
-    except(IOError, OSError), err:
-      logging.error("Unable to download "+fileSource)
-      self.abortFlag = True
-      self.result = "failed"
-      return
+    newContent = self.openUrl(fileSource)
+    logging.log(4,"Got "+fileSource)
     return None
   
   def getVersion(self):
