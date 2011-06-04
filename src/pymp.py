@@ -581,7 +581,9 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     converterCnt,converterDoneCnt,converterErrorCnt = self.updateConverterStatus()
     
     logging.debug(self.results)
-    logging.debug("%i %i %i %i %i %i %i %i"
+    logging.debug(
+                  """\nlen(Downloader.result) %i downloadCnt %i downloadDoneCnt %i downloadErrorCnt %i
+len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorCnt %i"""
                   %(len(DownloadWorker.result),
                     downloadCnt,
                     downloadDoneCnt,
@@ -604,20 +606,41 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     else:
       self.progressPage.updateContent(self.results)
     
-    if downloadCnt == downloadDoneCnt and downloadCnt > 0:
-      if self.checkBoxMp3.isChecked() and downloadDoneCnt > downloadErrorCnt:
-        if converterCnt == converterDoneCnt and converterCnt > 0:
-          self.uiAfterActions()
-      else:
-        self.uiAfterActions()
-    elif  self.checkBoxMp3.isChecked() \
-          and downloadCnt == 0: #file actions
-      if converterCnt == converterDoneCnt and converterCnt > 0:
-        self.uiAfterActions()
+    self.checkFinished()
+    
     return
+  
+  def checkFinished(self):
+    toReturn = False
+#    if downloadCnt == downloadDoneCnt and downloadCnt > 0:
+#      if self.checkBoxMp3.isChecked() and downloadDoneCnt > downloadErrorCnt:
+#        if converterCnt == converterDoneCnt and converterCnt > 0:
+#          self.uiAfterActions()
+#          toReturn = True
+#      else:
+#        self.uiAfterActions()
+#        toReturn = True
+#    elif  self.checkBoxMp3.isChecked() \
+#          and downloadCnt == 0: #file actions
+#      if converterCnt == converterDoneCnt and converterCnt > 0:
+#        self.uiAfterActions()
+#        toReturn = True
+    doneCnt=0
+    cnt=0
+    for key,value in self.results.iteritems():
+      cnt+=1
+      if value["state"].find("done") >= 0 \
+      or value["state"].find("error") >= 0:
+        doneCnt+=1
+    if doneCnt == cnt:
+      self.uiAfterActions()
+      toReturn = True
+    return toReturn
   
   def uiAfterActions(self):
     self.timer.stop()
+    self.updateDownloaderStatus()
+    self.updateConverterStatus()
     self.progressPage.updateContent(self.results)
     self.cancelButton.setText("&Done")
     if True == self.closeWhenFinished:
@@ -796,6 +819,8 @@ http://www.youtube.com/watch?v=bJAyLYR71NM&NR=1
 http://www.youtube.com/watch?v=jrZHxIA0eVU&feature=related
 http://www.youtube.com/watch?v=O5sd_CuZxNc
 http://www.youtube.com/watch?v=O5sd_CuZxNcaa
+http://www.youtube.com/watch?v=FyXGsr2rvEY
+http://www.youtube.com/watch?v=N_PgQOSlhGg
   """
   #logger
   LOG_PATH=os.path.expanduser("~/."+os.path.basename(sys.argv[0]))

@@ -197,7 +197,10 @@ class ConvertWorker(threading.Thread):
         convertedTime=float(strTime[0].split("=")[1])
 
       if None != convertedTime and None != totalTime:
-        toReturn="%i%%"%(convertedTime/totalTime*100.0)
+        try:
+          toReturn="%i%%"%(convertedTime/totalTime*100.0)
+        except:
+          toReturn="0%"
         return toReturn
     return "0%"
   
@@ -214,7 +217,10 @@ class ConvertWorker(threading.Thread):
             infos=i.split()
             progress=infos[1]
             total=infos[4]
-            percentage=float(progress)/float(total)*100
+            try:
+              percentage=float(progress)/float(total)*100
+            except:
+              percentage=0
             toReturn="%i%%"%(percentage)
             return toReturn
     return "0%"
@@ -430,6 +436,7 @@ class ConvertWorker(threading.Thread):
   
   def prepare(self):
     self.abortFlag = False
+    return
 
 if __name__== '__main__':
   logging.basicConfig(
