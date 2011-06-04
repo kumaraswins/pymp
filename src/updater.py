@@ -116,6 +116,13 @@ class Updater(QtGui.QDialog):
       dialog.setWindowTitle("Finished")
       dialog.setText("Restarting the program is required to finish the update.")
       dialog.exec_()
+    elif "success" == self.res \
+    and "no update" == self.updaterResult:
+      dialog=QtGui.QMessageBox(self)
+      dialog.setWindowTitle("Finished")
+      dialog.setText("The latest version is currently running.")
+      dialog.exec_()
+      self.res = "no update"
     elif self.res.find("failed") >= 0 \
     or self.updaterResult.find("failed") >= 0:
       dialog=QtGui.QMessageBox(self)
@@ -179,12 +186,11 @@ class UpdaterWorker(threading.Thread):
     return ver
   
   def isUpdateRequired(self):
-    try:
-      version = self.checkVersion()
-      result = (self.version < version)
-      logging.info(result)
-    except:
-      raise
+    version = self.checkVersion()
+    result = (self.version < version)
+    if not result:
+      self.result = "no update"
+    logging.info(result)
     return result,version
   
   def run(self):
