@@ -349,7 +349,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.setupUi(self)
     self.updater = Updater(
                            PATH,
-                           "2011-05-30-17h46",
+                           "2011-06-04",
                            "http://pymp.googlecode.com/hg/",
                            "latestVersion",
                            "latestFiles",
