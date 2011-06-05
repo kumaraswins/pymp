@@ -355,6 +355,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
                            "latestFiles",
                            LOG_FILENAME
                            )
+    logging.info(self.updater.version)
     
     #signals and slot stuff
     self.connect(self.timer,
