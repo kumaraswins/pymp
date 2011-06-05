@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os,re,logging,types,tempfile,subprocess,sys,webbrowser
+import os, re, logging, types, tempfile, subprocess, sys, webbrowser
 from PyQt4 import QtGui, QtCore
 from qtUtils import *
 from ui import *
@@ -29,7 +29,7 @@ from settings import *
 from updater import *
 
 class ProgressPage(QtGui.QWidget):
-  def __init__(self,information,settings):
+  def __init__(self, information, settings):
     global LOG_FILENAME
     QtGui.QWidget.__init__(self)
     self.settings = settings
@@ -41,39 +41,39 @@ class ProgressPage(QtGui.QWidget):
     self.boxLayout.addWidget(self.groupBox)
 
     self.scrollArea = QtGui.QScrollArea(self)
-    self.gridWidget= QtGui.QWidget(self.scrollArea)
+    self.gridWidget = QtGui.QWidget(self.scrollArea)
     self.mainLayout = QtGui.QGridLayout()
     self.mainLayout.setObjectName("mainLayout")
     self.gridWidget.setLayout(self.mainLayout)
     self.scrollLayout = QtGui.QHBoxLayout()
     
     self.lines = len(information)
-    self.widgets=[]
-    rowCnt=0
-    columnCnt=0
-    headerCnt=0
-    label=QtGui.QLabel(self)
+    self.widgets = []
+    rowCnt = 0
+    columnCnt = 0
+    headerCnt = 0
+    label = QtGui.QLabel(self)
     label.setText(translate("Url"))
-    self.mainLayout.addWidget(label,rowCnt+headerCnt,columnCnt)
-    columnCnt+=1
-    label=QtGui.QLabel(self)
+    self.mainLayout.addWidget(label, rowCnt + headerCnt, columnCnt)
+    columnCnt += 1
+    label = QtGui.QLabel(self)
     label.setText(translate("Step"))
-    self.mainLayout.addWidget(label,rowCnt+headerCnt,columnCnt)
-    columnCnt+=1
-    label=QtGui.QLabel(self)
+    self.mainLayout.addWidget(label, rowCnt + headerCnt, columnCnt)
+    columnCnt += 1
+    label = QtGui.QLabel(self)
     label.setText(translate("Filename"))
-    self.mainLayout.addWidget(label,rowCnt+headerCnt,columnCnt)
-    columnCnt+=1
-    label=QtGui.QLabel(self)
+    self.mainLayout.addWidget(label, rowCnt + headerCnt, columnCnt)
+    columnCnt += 1
+    label = QtGui.QLabel(self)
     label.setText(translate("Progress"))
-    self.mainLayout.addWidget(label,rowCnt+headerCnt,columnCnt)
-    columnCnt+=1
-    headerCnt+=1
-    for key,val in information.iteritems():
-      columnCnt=0
+    self.mainLayout.addWidget(label, rowCnt + headerCnt, columnCnt)
+    columnCnt += 1
+    headerCnt += 1
+    for key, val in information.iteritems():
+      columnCnt = 0
       self.widgets.append([])
       textEdit = QtGui.QTextBrowser(self)
-      textEdit.setText(self.htmlLink(key,True))
+      textEdit.setText(self.htmlLink(key, True))
       textEdit.setReadOnly(True)
       textEdit.setOpenExternalLinks(True)
       textEdit.setOpenLinks(False)
@@ -81,10 +81,10 @@ class ProgressPage(QtGui.QWidget):
                    QtCore.SIGNAL("anchorClicked(QUrl)"),
                    self.redirect)
       self.widgets[rowCnt].append(textEdit)
-      self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt])-1],
-                                rowCnt+headerCnt,
+      self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt]) - 1],
+                                rowCnt + headerCnt,
                                 columnCnt)
-      columnCnt+=1
+      columnCnt += 1
       textEdit = QtGui.QTextBrowser(self)
       textEdit.setText(val["state"])
       textEdit.setReadOnly(True)
@@ -94,10 +94,10 @@ class ProgressPage(QtGui.QWidget):
                    QtCore.SIGNAL("anchorClicked(QUrl)"),
                    self.redirect)
       self.widgets[rowCnt].append(textEdit)
-      self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt])-1],
-                                rowCnt+headerCnt,
+      self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt]) - 1],
+                                rowCnt + headerCnt,
                                 columnCnt)
-      columnCnt+=1
+      columnCnt += 1
       textEdit = QtGui.QTextBrowser(self)
       textEdit.setOpenExternalLinks(True)
       textEdit.setOpenLinks(False)
@@ -107,20 +107,20 @@ class ProgressPage(QtGui.QWidget):
                    self.redirect)
       textEdit.setText(self.htmlLink(val["file"]))
       self.widgets[rowCnt].append(textEdit)
-      self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt])-1],
-                                rowCnt+headerCnt,
+      self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt]) - 1],
+                                rowCnt + headerCnt,
                                 columnCnt)
-      columnCnt+=1
+      columnCnt += 1
       bar = QtGui.QProgressBar(self)
       bar.setMinimum(0)
       bar.setMaximum(100)
       bar.setValue(0)
       self.widgets[rowCnt].append(bar)
-      self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt])-1],
-                                rowCnt+headerCnt,
+      self.mainLayout.addWidget(self.widgets[rowCnt][len(self.widgets[rowCnt]) - 1],
+                                rowCnt + headerCnt,
                                 columnCnt)
-      columnCnt+=1
-      rowCnt+=1
+      columnCnt += 1
+      rowCnt += 1
     
     self.gridWidget.show()
     self.scrollArea.setWidget(self.gridWidget)
@@ -132,25 +132,25 @@ class ProgressPage(QtGui.QWidget):
     return
   
   def retranslate(self):
-    self.groupBox.setTitle(QtGui.QApplication.translate("MainWindow","&Progress information", None, QtGui.QApplication.UnicodeUTF8))
+    self.groupBox.setTitle(QtGui.QApplication.translate("MainWindow", "&Progress information", None, QtGui.QApplication.UnicodeUTF8))
     return
   
-  def redirect(self,url):
+  def redirect(self, url):
     if type(url) == QtCore.QUrl:
-      qurl=url
-      url=str(url.toString())
+      qurl = url
+      url = str(url.toString())
     else:
       url = str(url)
-      qurl=QtCore.QUrl(url)
+      qurl = QtCore.QUrl(url)
       
     logging.debug(url)
     logging.debug(qurl)
     if isMaemo5():
       if  url.find("http") >= 0\
-          or re.search(os.path.basename(LOG_FILENAME),url):
+          or re.search(os.path.basename(LOG_FILENAME), url):
         QtGui.QDesktopServices.openUrl(qurl)
       else:
-        subprocess.Popen(["osso-xterm -e \"%s %s\""%(self.settings["mplayer.path"],os.path.abspath(url))],shell=True)
+        subprocess.Popen(["osso-xterm -e \"%s %s\"" % (self.settings["mplayer.path"], os.path.abspath(url))], shell=True)
     elif os.name == 'mac':
       subprocess.Popen(('open', url))
     elif os.name == 'nt':
@@ -160,75 +160,75 @@ class ProgressPage(QtGui.QWidget):
     elif type(qurl) == QtCore.QUrl:
       QtGui.QDesktopServices.openUrl(qurl)
   
-  def htmlLink(self,link,force=False):
-    toReturn=""
+  def htmlLink(self, link, force=False):
+    toReturn = ""
     try:
-      words=link.split(" ")
+      words = link.split(" ")
       for i in words:
-        toReturn+=self.singleLink(i, force)
-        toReturn+=" "
-      toReturn=toReturn.rstrip()
+        toReturn += self.singleLink(i, force)
+        toReturn += " "
+      toReturn = toReturn.rstrip()
     finally:
       return toReturn
   
-  def singleLink(self,link,force=False):
+  def singleLink(self, link, force=False):
     if None == link:
       toReturn = ""
     elif  os.path.isfile(link):
-      toReturn="<a href=\""+os.path.abspath(link)+"\">"+link+"</a>"
+      toReturn = "<a href=\"" + os.path.abspath(link) + "\">" + link + "</a>"
     elif link.find("http") or force == True:
-      toReturn="<a href=\""+link+"\">"+link+"</a>"
+      toReturn = "<a href=\"" + link + "\">" + link + "</a>"
     else:
-      toReturn=link
+      toReturn = link
     return toReturn
   
-  def updateContent(self,information):
-    rowCnt=0
-    columnCnt=0
-    for key,val in information.iteritems():
-      columnCnt=0
+  def updateContent(self, information):
+    rowCnt = 0
+    columnCnt = 0
+    for key, val in information.iteritems():
+      columnCnt = 0
       #url
       if self.htmlLink(key, True) != self.widgets[rowCnt][columnCnt].toPlainText():
-        self.widgets[rowCnt][columnCnt].setText(self.htmlLink(key,True))
-      columnCnt+=1
+        self.widgets[rowCnt][columnCnt].setText(self.htmlLink(key, True))
+      columnCnt += 1
       #step information
       if val["state"] != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(val["state"])
-      columnCnt+=1
+      columnCnt += 1
       #file information
       if val.has_key("converted"):
-        strn=val["converted"]+" "+val["file"]
+        strn = val["converted"] + " " + val["file"]
       else:
-        strn=val["file"]
+        strn = val["file"]
       if  val["file"] != None \
           and strn != self.widgets[rowCnt][columnCnt].toPlainText():
         self.widgets[rowCnt][columnCnt].setText(self.htmlLink(strn))
-      columnCnt+=1
+      columnCnt += 1
       #progress bar
       progress = val["totalProgress"]
       if type(val["totalProgress"]) is str:
-        progress = progress.replace('%','')
+        progress = progress.replace('%', '')
       progress = float(progress)
-      logging.debug("%i %s"%(progress,val["file"]))
+      logging.debug("%i %s %s" % (progress, key, val["file"]))
       self.widgets[rowCnt][columnCnt].setValue(progress)
-      columnCnt+=1
-      rowCnt+=1
+      columnCnt += 1
+      rowCnt += 1
   
 class AboutDialog(QtGui.QDialog, Ui_AboutDialog):
-  def __init__(self,name,version,url,bugs):
-    self.name=name
-    self.url=url
-    self.bugtracker=bugs
-    self.version=version
+  def __init__(self, name, version, url, bugs):
+    self.name = name
+    self.url = url
+    self.bugtracker = bugs
+    self.version = version
     QtGui.QDialog.__init__(self) 
     self.setupUi(self)
     
 class PreferencesDialog(Ui_PreferencesDialog):
-  def __init__(self,settings,updater):
+  def __init__(self, settings, updater):
     Ui_PreferencesDialog.__init__(self)
     self.updater = updater
     self.setWindowTitle(translate("Preferences"))
-    self.settings=settings
+    self.settings = settings
     self.readSettings()
     self.connect(self.buttonCancel,
                  QtCore.SIGNAL("clicked()"),
@@ -269,9 +269,9 @@ class PreferencesDialog(Ui_PreferencesDialog):
     self.settings.writeToFile()
 
   def onOk(self):
-    self.settings["download.numberOfRetries"]=str(self.spinRetry.value())
-    self.settings["numberOfSimultaniousConversions"]=str(self.spinConversions.value())
-    self.settings["numberOfSimultaniousDownloads"]=str(self.spinDownloads.value())
+    self.settings["download.numberOfRetries"] = str(self.spinRetry.value())
+    self.settings["numberOfSimultaniousConversions"] = str(self.spinConversions.value())
+    self.settings["numberOfSimultaniousDownloads"] = str(self.spinDownloads.value())
     if self.buttonDownloaderContinue.isChecked() == True:
       self.settings["download.continue"] = "True"
     else:
@@ -280,16 +280,16 @@ class PreferencesDialog(Ui_PreferencesDialog):
       self.settings["download.overwrite"] = "True"
     else:
       self.settings["download.overwrite"] = "False"
-    self.settings["converter.kbps"]=str(self.spinConverterKbps.value())
+    self.settings["converter.kbps"] = str(self.spinConverterKbps.value())
     self.saveSettings()
     self.close()
     return
 
   def changePath(self):
-    dir=QtGui.QFileDialog.getExistingDirectory(parent=self, 
+    dir = QtGui.QFileDialog.getExistingDirectory(parent=self,
                                                caption="Set working directory")
     if dir != "":
-      self.settings["workingDirectory"]=str(dir)
+      self.settings["workingDirectory"] = str(dir)
     self.updateDirectoryButton()
     return
   
@@ -300,7 +300,7 @@ class PreferencesDialog(Ui_PreferencesDialog):
   def updateDownloader(self):
     self.tmpFile = tempfile.TemporaryFile()
     self.errFile = tempfile.TemporaryFile()
-    sts=subprocess.call([self.settings["download.downloader.path"],"-U"],
+    sts = subprocess.call([self.settings["download.downloader.path"], "-U"],
                         stderr=self.errFile,
                         stdout=self.tmpFile)
     self.updateDownloaderVersionButton()
@@ -308,22 +308,22 @@ class PreferencesDialog(Ui_PreferencesDialog):
   def updateDownloaderVersionButton(self):
     self.tmpFile = tempfile.TemporaryFile()
     self.errFile = tempfile.TemporaryFile()
-    sts=subprocess.call([self.settings["download.downloader.path"],"-v"],
+    sts = subprocess.call([self.settings["download.downloader.path"], "-v"],
                         stderr=self.errFile,
                         stdout=self.tmpFile)
     self.tmpFile.seek(0)
-    version=self.tmpFile.read().rstrip()
+    version = self.tmpFile.read().rstrip()
     logging.debug(version)
     self.buttonDownloaderVersion.setText(version)
     return
   
   def updateVersionButton(self):
-    self.buttonVersion.setText("&"+self.updater.version)
+    self.buttonVersion.setText("&" + self.updater.version)
     return
   
   def updateVersion(self):
     self.hide()
-    rc=self.updater.exec_()
+    rc = self.updater.exec_()
     if "success" == rc:
       self.buttonVersion.setEnabled(False)
     self.show()
@@ -341,9 +341,9 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     #directory setup
     global LOG_PATH
     global PATH
-    self.settingsPath=LOG_PATH
-    self.installationPath=PATH
-    self.settings=Settings(self.settingsPath+"/pymprc",PATH)
+    self.settingsPath = LOG_PATH
+    self.installationPath = PATH
+    self.settings = Settings(self.settingsPath + "/pymprc", PATH)
     self.readSettings()
     self.timer = QtCore.QTimer()
     self.setupUi(self)
@@ -362,7 +362,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
                  QtCore.SIGNAL("timeout()"),
                  self.updateActions)
     #actions
-    self.connect(self.actionAbout, 
+    self.connect(self.actionAbout,
                  QtCore.SIGNAL("triggered()"),
                  self.onAbout)
     self.connect(self.actionAddFile,
@@ -387,19 +387,19 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.connect(self.downloadButton,
                  QtCore.SIGNAL("clicked()"),
                  self.onDownload)
-    self.connect(self.cancelButton, 
+    self.connect(self.cancelButton,
                  QtCore.SIGNAL("clicked()"),
                  self.onCancel)
     self.connect(self.actionOpenLog,
                  QtCore.SIGNAL("triggered()"),
                  self.onOpenLog)
     
-    self.pNumbers=re.compile(r"([0-9]*)")
+    self.pNumbers = re.compile(r"([0-9]*)")
     self.progressPage = None
     self.downloaders = None
     self.converters = None
     self.closeWhenFinished = False
-    self.preferencesDialog = PreferencesDialog(self.settings,self.updater)
+    self.preferencesDialog = PreferencesDialog(self.settings, self.updater)
     return
   
   def __del__(self):
@@ -428,7 +428,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     """
     #init downloaders
     if None == self.downloaders:
-      self.downloaders= [DownloadWorker(self.settings) for i in range(int(self.settings["numberOfSimultaniousDownloads"]))]
+      self.downloaders = [DownloadWorker(self.settings) for i in range(int(self.settings["numberOfSimultaniousDownloads"]))]
       for i in self.downloaders:
         i.setDaemon(True)
         i.start()
@@ -455,9 +455,9 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     for url in self.downloadList:
       if  os.path.isfile(os.path.abspath(url))\
           and url not in ConvertWorker.result.keys():
-        ConvertWorker.addResult(url,url,"queued 0%",True)
+        ConvertWorker.addResult(url, url, "queued 0%", True)
         self.results[url] = {"state": "Queued for converting",
-                             "file": url,
+                             "file": None,
                              "totalProgress": 50,
                              "stepProgress": 0}
       elif os.path.isdir(os.path.abspath(url)):
@@ -466,13 +466,13 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           if  os.path.isfile(f)\
               and f not in ConvertWorker.result.keys():
             logging.debug(f)
-            ConvertWorker.addResult(f,f,"queued 0%",True)
+            ConvertWorker.addResult(f, f, "queued 0%", True)
             self.results[f] = {"state": "Queued for converting",
                                "file": f,
                                "totalProgress": 50,
                                "stepProgress": 0}
       elif url not in DownloadWorker.result.keys():
-        if True == DownloadWorker.addResult(url,"queued 0%",True):
+        if True == DownloadWorker.addResult(url, "queued 0%", True):
           self.results[url] = {"state": "Queued for downloading",
                                "file": "",
                                "totalProgress": 0,
@@ -483,29 +483,29 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     return
   
   def updateDownloaderStatus(self):
-    pQueued=re.compile(r"queued",re.IGNORECASE)
-    downloadCnt=0
-    downloadDoneCnt=0
-    downloadErrorCnt=0
+    pQueued = re.compile(r"queued", re.IGNORECASE)
+    downloadCnt = 0
+    downloadDoneCnt = 0
+    downloadErrorCnt = 0
     DownloadWorker.resultLock.acquire()
-    for url,state in DownloadWorker.result.iteritems():
-      downloadCnt+=1
+    for url, state in DownloadWorker.result.iteritems():
+      downloadCnt += 1
       if  state["state"].find("done") >= 0\
           or state["state"].find("error") >= 0:
-        downloadDoneCnt+=1
+        downloadDoneCnt += 1
         if  type(state["file"]) == types.NoneType\
             or not os.path.isfile(state["file"]):
           self.results[url]["file"] = state["file"]
-          self.results[url]["state"] = "Download error. See <a href=\"" +LOG_FILENAME+ "\">"+LOG_FILENAME+"</a> for more information."
+          self.results[url]["state"] = "Download error. See <a href=\"" + LOG_FILENAME + "\">" + LOG_FILENAME + "</a> for more information."
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "100%"
-          downloadErrorCnt+=1
-        elif state["file"] not in ConvertWorker.result.keys()  and self.checkBoxMp3.isChecked():
+          downloadErrorCnt += 1
+        elif url not in ConvertWorker.result.keys()  and self.checkBoxMp3.isChecked():
           self.results[url]["file"] = state["file"]
           self.results[url]["state"] = "Queued for converting"
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "50%"
-          ConvertWorker.addResult(url,state["file"],"queued 0%",True)
+          ConvertWorker.addResult(url, state["file"], "queued 0%", True)
         elif not self.checkBoxMp3.isChecked():
           self.results[url]["file"] = state["file"]
           self.results[url]["state"] = "done"
@@ -513,27 +513,27 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           self.results[url]["totalProgress"] = "100%"
       else:
         if  self.results[url]["state"] != "Downloading" \
-            and not pQueued.search(state["state"]):
+        and not pQueued.search(state["state"]):
           self.results[url]["state"] = "Downloading"
         self.results[url]["stepProgress"] = state["state"]
         self.results[url]["file"] = state["file"]
-        steps=1
+        steps = 1
         if self.checkBoxMp3.isChecked():
-          steps+=1
-        total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/steps
-        self.results[url]["totalProgress"] = "%.1lf%%" %(total)
+          steps += 1
+        total = float(filter(None, self.pNumbers.findall(state["state"]))[0]) / steps
+        self.results[url]["totalProgress"] = "%.1lf%%" % (total)
     DownloadWorker.resultLock.release()
-    return downloadCnt,downloadDoneCnt,downloadErrorCnt
+    return downloadCnt, downloadDoneCnt, downloadErrorCnt
   
   def updateConverterStatus(self):
-    pQueued=re.compile(r"queued",re.IGNORECASE)
+    pQueued = re.compile(r"queued", re.IGNORECASE)
     converterDoneCnt = 0
     converterCnt = 0
     converterErrorCnt = 0
     if self.checkBoxMp3.isChecked():
       ConvertWorker.resultLock.acquire()
-      for index,state in ConvertWorker.result.iteritems():
-        converterCnt+=1
+      for index, state in ConvertWorker.result.iteritems():
+        converterCnt += 1
         try:
           #Does the state need to be updated?
           if  (self.results[index]["state"] != "Converting" \
@@ -545,45 +545,45 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           self.results[index]["stepProgress"] = state["state"]
           if state["state"].find("done") >= 0:
             self.results[index]["state"] = state["state"]
-            converterDoneCnt+=1
-            total=100
+            converterDoneCnt += 1
+            total = 100
             self.results[index]["converted"] = state["workingFile"]
           elif  state["state"].find("error") >= 0:
-            self.results[index]["state"] = "Conversion error. See <a href=\"" +LOG_FILENAME+ "\">"+LOG_FILENAME+"</a> for more information."
-            converterDoneCnt+=1
-            converterErrorCnt+=1
-            total=100
+            self.results[index]["state"] = "Conversion error. See <a href=\"" + LOG_FILENAME + "\">" + LOG_FILENAME + "</a> for more information."
+            converterDoneCnt += 1
+            converterErrorCnt += 1
+            total = 100
             self.results[index]["converted"] = ""
           else:
-            steps=1
-            offset=0
+            steps = 1
+            offset = 0
             if  self.checkBoxFlash.isChecked() \
                 or not os.path.isfile(os.path.abspath(key)):
-              steps+=1
-              offset=50
-            total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/steps+offset
-          self.results[index]["totalProgress"] = "%.1lf%%" %(total)
+              steps += 1
+              offset = 50
+            total = float(filter(None, self.pNumbers.findall(state["state"]))[0]) / steps + offset
+          self.results[index]["totalProgress"] = "%.1lf%%" % (total)
         except TypeError:
           pass
       ConvertWorker.resultLock.release()
-    return converterCnt,converterDoneCnt,converterErrorCnt
+    return converterCnt, converterDoneCnt, converterErrorCnt
 
   
   def updateActions(self):
-    self.downloadDoneCnt=0
-    self.downloadCnt=0
-    self.downloadErrorCnt=0
-    self.converterDoneCnt=0
-    self.converterCnt=0
-    self.converterErrorCnt=0
-    self.downloadCnt,self.downloadDoneCnt,self.downloadErrorCnt = self.updateDownloaderStatus()
-    self.converterCnt,self.converterDoneCnt,self.converterErrorCnt = self.updateConverterStatus()
+    self.downloadDoneCnt = 0
+    self.downloadCnt = 0
+    self.downloadErrorCnt = 0
+    self.converterDoneCnt = 0
+    self.converterCnt = 0
+    self.converterErrorCnt = 0
+    self.downloadCnt, self.downloadDoneCnt, self.downloadErrorCnt = self.updateDownloaderStatus()
+    self.converterCnt, self.converterDoneCnt, self.converterErrorCnt = self.updateConverterStatus()
     
     logging.debug(self.results)
     logging.debug(
                   """\nlen(Downloader.result) %i downloadCnt %i downloadDoneCnt %i downloadErrorCnt %i
 len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorCnt %i"""
-                  %(len(DownloadWorker.result),
+                  % (len(DownloadWorker.result),
                     self.downloadCnt,
                     self.downloadDoneCnt,
                     self.downloadErrorCnt,
@@ -593,10 +593,10 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
                     self.converterErrorCnt))
     
     if None == self.progressPage:
-      self.progressPage = ProgressPage(self.results,self.settings)
+      self.progressPage = ProgressPage(self.results, self.settings)
       self.pages.addWidget(self.progressPage)
       self.pages.setCurrentWidget(self.progressPage)
-      self.pages.setCurrentIndex(self.pages.count()-1)
+      self.pages.setCurrentIndex(self.pages.count() - 1)
       self.progressPage.show()
       self.downloadButton.hide()
       self.cancelButton.show()
@@ -626,13 +626,13 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
           self.uiAfterActions()
           toReturn = True
     elif True:
-      doneCnt=0
-      cnt=0
-      for key,value in self.results.iteritems():
-        cnt+=1
+      doneCnt = 0
+      cnt = 0
+      for key, value in self.results.iteritems():
+        cnt += 1
         if value["state"].find("done") >= 0 \
         or value["state"].find("error") >= 0:
-          doneCnt+=1
+          doneCnt += 1
       if doneCnt == cnt:
         self.uiAfterActions()
         toReturn = True
@@ -679,23 +679,23 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
   
   def onDownload(self):
     logging.debug(" ")
-    toDl=str(self.inputPage.inputBrowser.toPlainText())
-    lines=toDl.split("\n")
-    self.downloadList=[]
-    cnt=0
+    toDl = str(self.inputPage.inputBrowser.toPlainText())
+    lines = toDl.split("\n")
+    self.downloadList = []
+    cnt = 0
     for line in lines:
-      newLine=re.sub(r"#.*",r"",line)
+      newLine = re.sub(r"#.*", r"", line)
       if newLine != "" and (self.checkBoxMp3.isChecked() or self.checkBoxFlash.isChecked()):
         self.downloadList.append(newLine)
-        cnt+=1
+        cnt += 1
     if 0 == cnt:
-      dialog=QtGui.QMessageBox(self)
-      infoStr="Nothing found to be done."
+      dialog = QtGui.QMessageBox(self)
+      infoStr = "Nothing found to be done."
       dialog.setWindowTitle(infoStr)
       if (self.checkBoxMp3.isChecked() or self.checkBoxFlash.isChecked()):
-        dialog.setText(infoStr+"\n\nYou may forgot to enter a URL.")
+        dialog.setText(infoStr + "\n\nYou may forgot to enter a URL.")
       else:
-        dialog.setText(infoStr+"\n\nYou forgot to check on of the check boxes right next to the download button.")
+        dialog.setText(infoStr + "\n\nYou forgot to check on of the check boxes right next to the download button.")
       if True == self.closeWhenFinished:
         print(dialog.text())
         sys.exit(0)
@@ -705,40 +705,40 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
     return
   
   def onAddFile(self):
-    toAdd=QtGui.QFileDialog.getOpenFileNames(parent=self,
+    toAdd = QtGui.QFileDialog.getOpenFileNames(parent=self,
                                              caption=translate("Select file(s)"))
-    self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText()+"\n"+toAdd.join("\n"))
+    self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText() + "\n" + toAdd.join("\n"))
     self.checkBoxMp3.setChecked(True)
     return
 
   def onAddDirectory(self):
-    toAdd=QtGui.QFileDialog.getExistingDirectory(parent=self,
+    toAdd = QtGui.QFileDialog.getExistingDirectory(parent=self,
                                                  caption=translate("Select directory"))
-    self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText()+"\n"+toAdd)
+    self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText() + "\n" + toAdd)
     self.checkBoxMp3.setChecked(True)
     return
 
   def onLoadList(self):
-    listFile=QtGui.QFileDialog.getOpenFileName(parent=self,
+    listFile = QtGui.QFileDialog.getOpenFileName(parent=self,
                                                caption=translate("Select download list"))
     return self.loadFile(listFile)
 
-  def loadFile(self,file):
+  def loadFile(self, file):
     if os.path.isfile(file):
-      f=open(file,"r")
+      f = open(file, "r")
       self.inputPage.inputBrowser.setText(f.read())
       f.close()
 
   def onSaveList(self):
-    file=QtGui.QFileDialog.getSaveFileName(parent=self, 
+    file = QtGui.QFileDialog.getSaveFileName(parent=self,
                                            caption=translate("Save to convertingFile"))
-    content=self.inputPage.inputBrowser.toPlainText()
-    f=open(file,"w")
+    content = self.inputPage.inputBrowser.toPlainText()
+    f = open(file, "w")
     f.write(content)
     f.close()
   
   def onAbout(self):
-    dlg=AboutDialog(
+    dlg = AboutDialog(
                     self.windowTitle(),
                     self.updater.version,
                     "https://sites.google.com/site/markusscharnowski/pc-software/pymp-youtube-downloader-and-mp3-converter",
@@ -748,13 +748,13 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
     return
   
   def onOpenLog(self):
-    dlg=QtGui.QDialog(self)
-    layout=QtGui.QHBoxLayout(dlg)
+    dlg = QtGui.QDialog(self)
+    layout = QtGui.QHBoxLayout(dlg)
     dlg.setLayout(layout)
-    textb=QtGui.QTextBrowser(dlg)
+    textb = QtGui.QTextBrowser(dlg)
     layout.addWidget(textb)
-    f=open(LOG_FILENAME,"r")
-    textb.setText(LOG_FILENAME+"\n"+f.read())
+    f = open(LOG_FILENAME, "r")
+    textb.setText(LOG_FILENAME + "\n" + f.read())
     f.close
     textb.show()
     dlg.resize(800, 480)
@@ -769,8 +769,8 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
 
 if __name__ == '__main__':
   import optparse
-  parser=optparse.OptionParser(usage="usage: %prog [options] url1 url2")
-  parser.add_option("-D", 
+  parser = optparse.OptionParser(usage="usage: %prog [options] url1 url2")
+  parser.add_option("-D",
                     "--debug",
                     dest="debugLevel",
                     action="store",
@@ -782,31 +782,31 @@ ERROR 40\n
 WARNING 30\n
 INFO 20\n
 DEBUG 10""")
-  parser.add_option("-l", 
+  parser.add_option("-l",
                     "--list",
                     dest="listFile",
                     action="store",
                     type="str",
                     help="""Load a file containing a download list""")
-  parser.add_option("-c", 
+  parser.add_option("-c",
                     "--close",
                     dest="close",
                     action="store_true",
                     default="store_false",
                     help="""Close and exit when finished.""")
-  parser.add_option("-d", 
+  parser.add_option("-d",
                     "--download",
                     dest="download",
                     action="store_true",
                     default="store_false",
                     help="""Start downloading immediatly. Needs either --video or --mp3.""")
-  parser.add_option("-m", 
+  parser.add_option("-m",
                     "--mp3",
                     dest="downloadMp3",
                     action="store_true",
                     default="store_false",
                     help="""Check the mp3 button.""")
-  parser.add_option("-v", 
+  parser.add_option("-v",
                     "--video",
                     dest="downloadVideo",
                     action="store_true",
@@ -824,17 +824,17 @@ http://www.youtube.com/watch?v=FyXGsr2rvEY
 http://www.youtube.com/watch?v=N_PgQOSlhGg
   """
   #logger
-  LOG_PATH=os.path.expanduser("~/."+os.path.basename(sys.argv[0]))
-  PATH=os.path.dirname(os.path.realpath(sys.argv[0]))
+  LOG_PATH = os.path.expanduser("~/." + os.path.basename(sys.argv[0]))
+  PATH = os.path.dirname(os.path.realpath(sys.argv[0]))
   if not os.path.exists(LOG_PATH):
     os.mkdir(LOG_PATH)
-  LOG_FILENAME=LOG_PATH+"/"+os.path.basename(sys.argv[0])+".log"
+  LOG_FILENAME = LOG_PATH + "/" + os.path.basename(sys.argv[0]) + ".log"
   logging.basicConfig(
                       filename=LOG_FILENAME,
                       filemode="w",
                       level=options.debugLevel,
-                      format = "%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
-                      datefmt = "%F %H:%M:%S")
+                      format="%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
+                      datefmt="%F %H:%M:%S")
   logging.info("log level " + str(options.debugLevel))
   logging.info(PATH)
   logging.info(LOG_PATH)
@@ -855,8 +855,8 @@ http://www.youtube.com/watch?v=N_PgQOSlhGg
       ui.checkBoxFlash.setChecked(True)
   #add command line arguments to the input browser
   for i in args:
-    text=str(ui.inputPage.inputBrowser.toPlainText())
-    text+="\n"+i
+    text = str(ui.inputPage.inputBrowser.toPlainText())
+    text += "\n" + i
     ui.inputPage.inputBrowser.setText(text)
   if options.download:
     if True == options.download:
