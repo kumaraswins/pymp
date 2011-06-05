@@ -455,7 +455,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     for url in self.downloadList:
       if  os.path.isfile(os.path.abspath(url))\
           and url not in ConvertWorker.result.keys():
-        ConvertWorker.addResult(url,"queued 0%",True)
+        ConvertWorker.addResult(url,url,"queued 0%",True)
         self.results[url] = {"state": "Queued for converting",
                              "file": url,
                              "totalProgress": 50,
@@ -466,7 +466,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           if  os.path.isfile(f)\
               and f not in ConvertWorker.result.keys():
             logging.debug(f)
-            ConvertWorker.addResult(f,"queued 0%",True)
+            ConvertWorker.addResult(f,f,"queued 0%",True)
             self.results[f] = {"state": "Queued for converting",
                                "file": f,
                                "totalProgress": 50,
@@ -505,7 +505,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
           self.results[url]["state"] = "Queued for converting"
           self.results[url]["stepProgress"] = "100%"
           self.results[url]["totalProgress"] = "50%"
-          ConvertWorker.addResult(state["file"],"queued 0%",True)
+          ConvertWorker.addResult(url,state["file"],"queued 0%",True)
         elif not self.checkBoxMp3.isChecked():
           self.results[url]["file"] = state["file"]
           self.results[url]["state"] = "done"
@@ -532,67 +532,65 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     converterErrorCnt = 0
     if self.checkBoxMp3.isChecked():
       ConvertWorker.resultLock.acquire()
-      for cfile,state in ConvertWorker.result.iteritems():
+      for index,state in ConvertWorker.result.iteritems():
         converterCnt+=1
-        for key,value in self.results.iteritems():
-          try:
-            if re.match(cfile,value["file"]):
-              #Does the state need to be updated?
-              if  (value["state"] != "Converting" \
-                  or not value["state"].find("done")\
-                  or not value["state"].find("error"))\
-                  and not pQueued.search(state["state"]):
-                value["state"] = "Converting"
-              
-              value["stepProgress"] = state["state"]
-              if state["state"].find("done") >= 0:
-                value["state"] = state["state"]
-                converterDoneCnt+=1
-                total=100
-                value["converted"] = state["workingFile"]
-              elif  state["state"].find("error") >= 0:
-                value["state"] = "Conversion error. See <a href=\"" +LOG_FILENAME+ "\">"+LOG_FILENAME+"</a> for more information."
-                converterDoneCnt+=1
-                converterErrorCnt+=1
-                total=100
-                value["converted"] = ""
-              else:
-                steps=1
-                offset=0
-                if  self.checkBoxFlash.isChecked() \
-                    or not os.path.isfile(os.path.abspath(key)):
-                  steps+=1
-                  offset=50
-                total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/steps+offset
-              value["totalProgress"] = "%.1lf%%" %(total)
-          except TypeError:
-            pass
+        try:
+          #Does the state need to be updated?
+          if  (self.results[index]["state"] != "Converting" \
+              or not self.results[index]["state"].find("done")\
+              or not self.results[index]["state"].find("error"))\
+              and not pQueued.search(state["state"]):
+            self.results[index]["state"] = "Converting"
+          
+          self.results[index]["stepProgress"] = state["state"]
+          if state["state"].find("done") >= 0:
+            self.results[index]["state"] = state["state"]
+            converterDoneCnt+=1
+            total=100
+            self.results[index]["converted"] = state["workingFile"]
+          elif  state["state"].find("error") >= 0:
+            self.results[index]["state"] = "Conversion error. See <a href=\"" +LOG_FILENAME+ "\">"+LOG_FILENAME+"</a> for more information."
+            converterDoneCnt+=1
+            converterErrorCnt+=1
+            total=100
+            self.results[index]["converted"] = ""
+          else:
+            steps=1
+            offset=0
+            if  self.checkBoxFlash.isChecked() \
+                or not os.path.isfile(os.path.abspath(key)):
+              steps+=1
+              offset=50
+            total=float(filter(None,self.pNumbers.findall(state["state"]))[0])/steps+offset
+          self.results[index]["totalProgress"] = "%.1lf%%" %(total)
+        except TypeError:
+          pass
       ConvertWorker.resultLock.release()
     return converterCnt,converterDoneCnt,converterErrorCnt
 
   
   def updateActions(self):
-    downloadDoneCnt=0
-    downloadCnt=0
-    downloadErrorCnt=0
-    converterDoneCnt=0
-    converterCnt=0
-    converterErrorCnt=0
-    downloadCnt,downloadDoneCnt,downloadErrorCnt = self.updateDownloaderStatus()
-    converterCnt,converterDoneCnt,converterErrorCnt = self.updateConverterStatus()
+    self.downloadDoneCnt=0
+    self.downloadCnt=0
+    self.downloadErrorCnt=0
+    self.converterDoneCnt=0
+    self.converterCnt=0
+    self.converterErrorCnt=0
+    self.downloadCnt,self.downloadDoneCnt,self.downloadErrorCnt = self.updateDownloaderStatus()
+    self.converterCnt,self.converterDoneCnt,self.converterErrorCnt = self.updateConverterStatus()
     
     logging.debug(self.results)
     logging.debug(
                   """\nlen(Downloader.result) %i downloadCnt %i downloadDoneCnt %i downloadErrorCnt %i
 len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorCnt %i"""
                   %(len(DownloadWorker.result),
-                    downloadCnt,
-                    downloadDoneCnt,
-                    downloadErrorCnt,
+                    self.downloadCnt,
+                    self.downloadDoneCnt,
+                    self.downloadErrorCnt,
                     len(ConvertWorker.result),
-                    converterCnt,
-                    converterDoneCnt,
-                    converterErrorCnt))
+                    self.converterCnt,
+                    self.converterDoneCnt,
+                    self.converterErrorCnt))
     
     if None == self.progressPage:
       self.progressPage = ProgressPage(self.results,self.settings)
@@ -613,29 +611,31 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
   
   def checkFinished(self):
     toReturn = False
-#    if downloadCnt == downloadDoneCnt and downloadCnt > 0:
-#      if self.checkBoxMp3.isChecked() and downloadDoneCnt > downloadErrorCnt:
-#        if converterCnt == converterDoneCnt and converterCnt > 0:
-#          self.uiAfterActions()
-#          toReturn = True
-#      else:
-#        self.uiAfterActions()
-#        toReturn = True
-#    elif  self.checkBoxMp3.isChecked() \
-#          and downloadCnt == 0: #file actions
-#      if converterCnt == converterDoneCnt and converterCnt > 0:
-#        self.uiAfterActions()
-#        toReturn = True
-    doneCnt=0
-    cnt=0
-    for key,value in self.results.iteritems():
-      cnt+=1
-      if value["state"].find("done") >= 0 \
-      or value["state"].find("error") >= 0:
-        doneCnt+=1
-    if doneCnt == cnt:
-      self.uiAfterActions()
-      toReturn = True
+    if False:
+      if self.downloadCnt == self.downloadDoneCnt and self.downloadCnt > 0:
+        if self.checkBoxMp3.isChecked() and self.downloadDoneCnt > self.downloadErrorCnt:
+          if self.converterCnt == self.converterDoneCnt and self.converterCnt > 0:
+            self.uiAfterActions()
+            toReturn = True
+        else:
+          self.uiAfterActions()
+          toReturn = True
+      elif  self.checkBoxMp3.isChecked() \
+            and downloadCnt == 0: #file actions
+        if self.converterCnt == self.converterDoneCnt and self.converterCnt > 0:
+          self.uiAfterActions()
+          toReturn = True
+    elif True:
+      doneCnt=0
+      cnt=0
+      for key,value in self.results.iteritems():
+        cnt+=1
+        if value["state"].find("done") >= 0 \
+        or value["state"].find("error") >= 0:
+          doneCnt+=1
+      if doneCnt == cnt:
+        self.uiAfterActions()
+        toReturn = True
     return toReturn
   
   def uiAfterActions(self):

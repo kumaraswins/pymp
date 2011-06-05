@@ -108,15 +108,16 @@ class ConvertWorker(threading.Thread):
         os.remove(file)
     return
   
-  def addResult(convertingFile,state,putInQueue = False):
+  def addResult(index,convertingFile,state,putInQueue = False):
     rc = False
     ConvertWorker.resultLock.acquire()
-    if convertingFile not in ConvertWorker.result.keys():
-      ConvertWorker.result[convertingFile] = {"state": state,
-                                              "step": "",
-                                              "stepState": ""}
+    if index not in ConvertWorker.result.keys():
+      ConvertWorker.result[index] = {"state": state,
+                                     "step": "",
+                                     "stepState": "",
+                                     "sourceFile":convertingFile}
       if True == putInQueue:
-        ConvertWorker.queue.put(convertingFile)
+        ConvertWorker.queue.put(index)
       rc = True
     ConvertWorker.resultLock.release()
     return rc
@@ -124,7 +125,8 @@ class ConvertWorker(threading.Thread):
   
   def run(self):
     while True:
-      self.convertingFile = ConvertWorker.queue.get()
+      self.index = ConvertWorker.queue.get()
+      self.convertingFile = ConvertWorker.result[self.index]["sourceFile"]
       if self.abortFlag:
         ConvertWorker.queue.task_done()
         continue
@@ -132,7 +134,7 @@ class ConvertWorker(threading.Thread):
       self.workingFile.append(self.convertingFile)
       self.filesToDelete = []
       self.p = None
-      ConvertWorker.addResult(self.convertingFile,"Converting 0%")
+      ConvertWorker.addResult(self.index,self.convertingFile,"Converting 0%")
       self.totalProgress = 0
       if True == os.path.isfile(self.convertingFile):
         if False:
@@ -157,20 +159,22 @@ class ConvertWorker(threading.Thread):
     try:
       ConvertWorker.resultLock.acquire()
       if "done" == state or "error" == state:
-        ConvertWorker.result[self.convertingFile] = {"state" : state, 
-                                                     "step": self.currentRunning,
-                                                     "stepState": state,
-                                                     "workingFile": self.workingFile.last()
-                                                     }
+        ConvertWorker.result[self.index] = {"state" : state, 
+                                            "step": self.currentRunning,
+                                            "stepState": state,
+                                            "workingFile": self.workingFile.last(),
+                                            "sourceFile":ConvertWorker.result[self.index]["sourceFile"]
+                                            }
       else:
         total=(int(self.totalProgress) + float(state.strip("%"))/100)/float(self.totalSteps)*100
-        ConvertWorker.result[self.convertingFile] = {"state": str(total)+"%",
-                                                     "step": self.currentRunning,
-                                                     "stepState": state,
-                                                     "workingFile": self.workingFile.last()
-                                                     }
+        ConvertWorker.result[self.index] = {"state": str(total)+"%",
+                                            "step": self.currentRunning,
+                                            "stepState": state,
+                                            "workingFile": self.workingFile.last(),
+                                            "sourceFile":ConvertWorker.result[self.index]["sourceFile"]
+                                            }
       logging.log(3,self.convertingFile)
-      logging.log(3,self.result[self.convertingFile])
+      logging.log(3,self.result[self.index])
       ConvertWorker.resultLock.release()
       return
     except ValueError:
