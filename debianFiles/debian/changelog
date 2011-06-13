@@ -1,3 +1,15 @@
+pymp (0.0.5-3) unstable; urgency=low
+
+  * update issue
+
+ -- unknown <markus.scharnowski@gmail.com>  Mon, 13 Jun 2011 16:40:23 +0200
+
+pymp (0.0.5-2) unstable; urgency=low
+
+  * Update feature, adjustable bit-rate, add file/directory...
+
+ -- unknown <markus.scharnowski@gmail.com>  Mon, 13 Jun 2011 16:40:23 +0200
+
 pymp (0.0.4-1) unstable; urgency=low
 
   * improved "cancel" behavior; open log file from menu
