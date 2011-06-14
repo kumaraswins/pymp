@@ -55,7 +55,6 @@ linkFilesOneByOne()
     fi
     target="/usr/share/icons/hicolor/scalable/apps/pymp.png"
     source="/opt/pymp/data/icons/scalable/pymp.png"
-    source 
     if [[ ! -f "$target" ]]
     then
       ln -s $source $target
@@ -66,7 +65,7 @@ linkFilesOneByOne()
 linkFilesGeneric()
 {
   optdir="/opt/pymp/data/icons"
-  sharedir="/usr/share/icons/hicolor/"
+  sharedir="/usr/share/icons/hicolor"
   for i in `find $optdir -type f`
   do
     fileName=`basename $i`

@@ -7,7 +7,6 @@ src/data/icons/48x48/pymp.png.base64 data/icons/48x48/pymp.png.base64
 src/data/icons/48x48/pymp.png data/icons/48x48/pymp.png
 src/data/icons/64x64/pymp.png data/icons/64x64/pymp.png
 src/data/icons/scalable/pymp.png data/icons/scalable/pymp.png
-src/data/linkIcons.sh data/linkIcons.sh
 src/data/pymp.desktop data/pymp.desktop
 src/downloadWorker.py downloadWorker.py
 src/maemoUtils.py maemoUtils.py
