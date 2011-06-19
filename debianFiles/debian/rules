@@ -58,8 +58,11 @@ install: build
 
 	# Add here commands to install the package into debian/pymp.
 	#$(MAKE) DESTDIR=$(CURDIR)/debian/pymp install
+	#$(CURDIR) refers to /sandbox/something/
+	#$(CURDIR)/debian/pymp refers to the root directory ('/')
 	mkdir -p $(CURDIR)/debian/pymp
 	cp -r src/* $(CURDIR)/debian/pymp/opt/pymp
+	#now all the stuff should be there - 'real' paths are now possible
 	ln -s /opt/pymp/pymp.py $(CURDIR)/debian/pymp/usr/bin/pymp.py
 
 	#copy the menu file

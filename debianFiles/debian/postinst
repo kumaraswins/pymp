@@ -27,37 +27,55 @@ linkFilesOneByOne()
     source="/opt/pymp/data/icons/16x16/pymp.png"
     if [[ ! -f "$target" ]]
     then
-      ln -s $source $target
+      if [[ -f "$i" ]]
+      then
+        ln -s $source $target
+      fi
     fi
     target="/usr/share/icons/hicolor/26x26/apps/pymp.png"
     source="/opt/pymp/data/icons/26x26/pymp.png"
     if [[ ! -f "$target" ]]
     then
-      ln -s $source $target
+      if [[ -f "$i" ]]
+      then
+        ln -s $source $target
+      fi
     fi
     target="/usr/share/icons/hicolor/40x40/apps/pymp.png"
     source="/opt/pymp/data/icons/40x40/pymp.png"
     if [[ ! -f "$target" ]]
     then
-      ln -s $source $target
+      if [[ -f "$i" ]]
+      then
+        ln -s $source $target
+      fi
     fi
     target="/usr/share/icons/hicolor/48x48/apps/pymp.png"
     source="/opt/pymp/data/icons/48x48/pymp.png"
     if [[ ! -f "$target" ]]
     then
-      ln -s $source $target
+      if [[ -f "$i" ]]
+      then
+        ln -s $source $target
+      fi
     fi
     target="/usr/share/icons/hicolor/64x64/apps/pymp.png"
     source="/opt/pymp/data/icons/64x64/pymp.png"
     if [[ ! -f "$target" ]]
     then
-      ln -s $source $target
+      if [[ -f "$i" ]]
+      then
+        ln -s $source $target
+      fi
     fi
     target="/usr/share/icons/hicolor/scalable/apps/pymp.png"
     source="/opt/pymp/data/icons/scalable/pymp.png"
     if [[ ! -f "$target" ]]
     then
-      ln -s $source $target
+      if [[ -f "$i" ]]
+      then
+        ln -s $source $target
+      fi
     fi
   fi
 }
@@ -75,7 +93,10 @@ linkFilesGeneric()
     target="$sharedir/$shortDirName/apps/$fileName"
     if [[ ! -f "$target" ]]
     then
-      ln -s $i $target
+      if [[ -f "$i" ]]
+      then
+        ln -s $i $target
+      fi
     fi
   done
 }

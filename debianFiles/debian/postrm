@@ -21,9 +21,9 @@ set -e
 #echo $0 $* > /tmp/`basename $0``date +%s`
 
 case "$1" in
-    purge|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    upgrade|purge|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
-
+    
     remove)
       rm -rf /home/user/.pymp.py
       rm -rf /opt/pymp/
