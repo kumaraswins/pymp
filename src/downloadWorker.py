@@ -41,9 +41,11 @@ class DownloadWorker(threading.Thread):
   
   def __init__(self,settings):
     threading.Thread.__init__(self)
+    DownloadWorker.resultLock.acquire()
     self.p = None
     self.settings=settings
     self.abortFlag = False
+    DownloadWorker.resultLock.release()
     return
   
   def readSettings(self):

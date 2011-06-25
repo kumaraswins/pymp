@@ -555,12 +555,8 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
             total = 100
             self.results[index]["converted"] = ""
           else:
-            steps = 1
-            offset = 0
-            if  self.checkBoxFlash.isChecked() \
-                or not os.path.isfile(os.path.abspath(key)):
-              steps += 1
-              offset = 50
+            steps = 2
+            offset = 50
             total = float(filter(None, self.pNumbers.findall(state["state"]))[0]) / steps + offset
           self.results[index]["totalProgress"] = "%.1lf%%" % (total)
         except TypeError:
