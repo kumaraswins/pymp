@@ -63,7 +63,13 @@ install: build
 	mkdir -p $(CURDIR)/debian/pymp
 	cp -r src/* $(CURDIR)/debian/pymp/opt/pymp
 	#now all the stuff should be there - 'real' paths are now possible
+	#for cp the CURDIR stuff is possible but not for links
 	ln -s /opt/pymp/pymp.py $(CURDIR)/debian/pymp/usr/bin/pymp.py
+	ln -s /opt/pymp/data/icons/16x16/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/16x16/apps/pymp.png
+	ln -s /opt/pymp/data/icons/26x26/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/26x26/apps/pymp.png
+	ln -s /opt/pymp/data/icons/48x48/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/48x48/apps/pymp.png
+	ln -s /opt/pymp/data/icons/64x64/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/64x64/apps/pymp.png
+	ln -s /opt/pymp/data/icons/scalable/pymp.png $(CURDIR)/debian/pymp/usr/share/icons/hicolor/scalable/apps/pymp.png
 
 	#copy the menu file
 	cp src/data/pymp.desktop $(CURDIR)/debian/pymp/usr/share/applications/hildon

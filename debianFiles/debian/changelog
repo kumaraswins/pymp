@@ -1,4 +1,4 @@
-pymp (0.0.6-1) unstable; urgency=low
+pymp (0.0.6-6) unstable; urgency=low
 
   * bugfix for issue 1 - hangup when only "mp3" is selected
 
