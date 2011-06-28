@@ -8,7 +8,7 @@ Standards-Version: 3.7.2
 Package: pymp
 Homepage: http://sites.google.com/site/markusscharnowski/pc-software/pymp-youtube-downloader-and-mp3-converter
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, python2.5, mplayer, lame
+Depends: ${shlibs:Depends}, ${misc:Depends}, mplayer, lame, python2.5, python2.5-qt4-gui, python2.5-qt4-core
 Description: Pymp - a python based youtube to mp3 converter and video downloader
  Pymp allows you to enter urls from youtube and other video hosting sites (google, yahoo...) and then dowlaod
  the videos from there and convert them to mp3 if desired.
