@@ -16,8 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
+try:
+  import PySide
+  from PySide.QtCore import QT_VERSION_STR
+except:
+  from PyQt4 import QtCore, QtGui
+  from PyQt4.QtCore import QT_VERSION_STR
 import os, re, logging, types, tempfile, subprocess, sys, webbrowser
-from PyQt4 import QtGui, QtCore
 from qtUtils import *
 from ui import *
 from aboutdialog import Ui_AboutDialog
@@ -27,6 +32,11 @@ from convertWorker import ConvertWorker
 from preferencesDialog import Ui_PreferencesDialog
 from settings import *
 from updater import *
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    _fromUtf8 = lambda s: s
 
 class ProgressPage(QtGui.QWidget):
   def __init__(self, information, settings):
@@ -349,7 +359,7 @@ class Ui(QtGui.QMainWindow, Ui_MainWindow):
     self.setupUi(self)
     self.updater = Updater(
                            PATH,
-                           "2011-06-25",
+                           "2011-12-29",
                            "http://pymp.googlecode.com/hg/",
                            "latestVersion",
                            "latestFiles",
@@ -703,7 +713,14 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
   def onAddFile(self):
     toAdd = QtGui.QFileDialog.getOpenFileNames(parent=self,
                                              caption=translate("Select file(s)"))
-    self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText() + "\n" + toAdd.join("\n"))
+    if type(toAdd) is tuple:
+      fileName = '\n'.join(unicode(i) for i in toAdd[0])
+      self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText() + "\n" + fileName)
+    elif type(toAdd) is str:
+      self.inputPage.inputBrowser.setText(self.inputPage.inputBrowser.toPlainText() + "\n" + toAdd.join("\n"))
+    else:
+      logging.error("Unsupported type: "+type(toAdd))
+      return
     self.checkBoxMp3.setChecked(True)
     return
 
@@ -720,8 +737,16 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
     return self.loadFile(listFile)
 
   def loadFile(self, file):
-    if os.path.isfile(file):
-      f = open(file, "r")
+    fn=""
+    if type(file) is tuple:
+      fn=file[0]
+    elif type(file) is str:
+      fn=file
+    else:
+      logging.error("Unsupported type: "+type(file))
+    
+    if os.path.isfile(fn):
+      f = open(fn, "r")
       self.inputPage.inputBrowser.setText(f.read())
       f.close()
 
@@ -729,7 +754,13 @@ len(ConvertWorker.result) %i converterCnt %i converterDoneCnt %i converterErrorC
     file = QtGui.QFileDialog.getSaveFileName(parent=self,
                                            caption=translate("Save to convertingFile"))
     content = self.inputPage.inputBrowser.toPlainText()
-    f = open(file, "w")
+    if type(file) is tuple:
+      f = open(file[0], "w")
+    elif type(file) is str:
+      f = open(file, "w")
+    else:
+      logging.error("Unsupported type: "+type(file))
+      return
     f.write(content)
     f.close()
   
@@ -818,6 +849,12 @@ http://www.youtube.com/watch?v=O5sd_CuZxNc
 http://www.youtube.com/watch?v=O5sd_CuZxNcaa
 http://www.youtube.com/watch?v=FyXGsr2rvEY
 http://www.youtube.com/watch?v=N_PgQOSlhGg
+#
+http://www.youtube.com/watch?v=NEzemaOSanA
+http://www.youtube.com/watch?v=DmvLgSSo7ng
+http://www.youtube.com/watch?v=mOTQeA6In7g
+http://www.youtube.com/watch?v=SxbNYPe52Zw
+http://www.youtube.com/watch?v=CK6TvHM2hFM
   """
   #logger
   LOG_PATH = os.path.expanduser("~/." + os.path.basename(sys.argv[0]))
@@ -831,6 +868,11 @@ http://www.youtube.com/watch?v=N_PgQOSlhGg
                       level=options.debugLevel,
                       format="%(asctime)s %(levelname)s %(process)s %(thread)s %(module)s %(funcName)s %(lineno)s: %(message)s",
                       datefmt="%F %H:%M:%S")
+  try:
+    logging.info("PySide "+str(PySide.__version__))
+    logging.info("PySide QtCoreVersion"+str(QT_VERSION_STR))
+  except:
+    logging.info("PyQt "+str(QT_VERSION_STR))
   logging.info("log level " + str(options.debugLevel))
   logging.info(PATH)
   logging.info(LOG_PATH)

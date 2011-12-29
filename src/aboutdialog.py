@@ -17,7 +17,10 @@
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from PyQt4 import QtCore, QtGui
+try:
+  from PySide import QtCore, QtGui
+except:
+  from PyQt4 import QtCore, QtGui
 from qtUtils import *
 from maemoUtils import *
 
@@ -104,7 +107,8 @@ class Ui_AboutDialog(object):
     return
 
   def retranslateUi(self, Dialog):
-    Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog","About "+self.name, None, QtGui.QApplication.UnicodeUTF8))
+    x=str("About "+self.name)
+    Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", x, None, QtGui.QApplication.UnicodeUTF8))
     self.browserDonate.setText(translate(
         "You like what you have in your hands? You use it on regular basis? "\
         "Support the development by making a donation."\
@@ -129,7 +133,7 @@ class Ui_AboutDialog(object):
         " &body=Hello Markus,\">Feedback</a></p>"
         ))
     self.browserGeneral.setText(translate(
-        "<p>" + self.name + " " + self.version + "</p>"\
+        "<p>" + str(self.name) + " " + self.version + "</p>"\
 #        "<p>Test <a href=\"file:////home/markus/workspace/eclipse/python/pymp/test/Aladdin_intro_German-bJAyLYR71NM.flv\">test.flv</a></p>"\
 #        "<p>Test <a href=\"file:////home/markus/workspace/eclipse/python/pymp/test/Aladdin_intro_German-bJAyLYR71NM.flv.mp3\">test.flv.mp3</a></p>"\
 #        "<p>Test <a href=\"x\">test</a></p>"\
@@ -138,17 +142,17 @@ class Ui_AboutDialog(object):
         """
 <p><h1>License</h1></p>
 <p>
-""" + self.name + """ is free software: you can redistribute it and/or modify
+""" + str(self.name) + """ is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or any later version.
 </p><p>
-""" + self.name + """ is distributed in the hope that it will be useful,
+""" + str(self.name) + """ is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 </p><p>
 You should have received a copy of the GNU General Public License
-along with """ + self.name + """.  If not, see <a href="http://www.gnu.org/licenses/">gnu.org</a>.
+along with """ + str(self.name) + """.  If not, see <a href="http://www.gnu.org/licenses/">gnu.org</a>.
 </p>
         """
         ))
@@ -156,14 +160,15 @@ along with """ + self.name + """.  If not, see <a href="http://www.gnu.org/licen
 if __name__ == '__main__':
   import sys,os
   class MyWindow(QtGui.QDialog, Ui_AboutDialog): 
-    def __init__(self,name,url,bugs):
-      self.name=name
+    def __init__(self,name,version,url,bugs):
+      self.name=str(name)
+      self.version=version
       self.url=url
       self.bugtracker=bugs
       QtGui.QDialog.__init__(self) 
       self.setupUi(self)
 
   app = QtGui.QApplication(sys.argv) 
-  dialog = MyWindow(os.path.basename(__file__),"http://sites.google.com/site/markusscharnowski/123","http://code.google.com/p/push-it/issues/list") 
+  dialog = MyWindow(os.path.basename(__file__),"0.0test","http://sites.google.com/site/markusscharnowski/123","http://code.google.com/p/push-it/issues/list")
   dialog.show() 
   sys.exit(app.exec_())

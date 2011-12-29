@@ -17,7 +17,10 @@
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from PyQt4 import QtCore, QtGui
+try:
+  from PySide import QtCore, QtGui
+except:
+  from PyQt4 import QtCore, QtGui
 from maemoUtils import *
 
 try:

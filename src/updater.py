@@ -16,8 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with pymp.  If not, see <http://www.gnu.org/licenses/>.
 """
+try:
+  from PySide import QtCore, QtGui
+except:
+  from PyQt4 import QtCore, QtGui
 import logging,urllib,os,shutil,threading,time,inspect
-from PyQt4 import QtGui, QtCore
 from qtUtils import *
 from utils import *
 
